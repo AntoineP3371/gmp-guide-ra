@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guide.gmp.example/schemas/manifest.schema.json",
+  "title": "GMP Guide RA — scene manifest",
+  "type": "object",
+  "required": ["manifestVersion", "machine", "qr", "frame", "sections", "objects"],
+  "additionalProperties": false,
+  "properties": {
+    "manifestVersion": { "type": "string", "pattern": "^\\d+\\.\\d+$" },
+    "machine": {
+      "type": "object",
+      "required": ["id", "name", "slug", "revision", "publishedAt"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "category": { "type": "string" },
+        "location": { "type": "string" },
+        "languages": { "type": "array", "items": { "type": "string" }, "default": ["fr"] },
+        "revision": { "type": "integer", "minimum": 1 },
+        "publishedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "qr": {
+      "type": "object",
+      "required": ["code", "physicalSizeMeters"],
+      "additionalProperties": false,
+      "properties": {
+        "code": { "type": "string" },
+        "payload": { "type": "string" },
+        "physicalSizeMeters": { "type": "number", "exclusiveMinimum": 0 },
+        "errorCorrection": { "enum": ["L", "M", "Q", "H"], "default": "H" }
+      }
+    },
+    "frame": {
+      "type": "object",
+      "required": ["convention", "units"],
+      "additionalProperties": false,
+      "properties": {
+        "convention": { "const": "right-handed" },
+        "origin": { "type": "string" },
+        "axes": { "type": "string" },
+        "units": { "const": "meters" }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "enum": ["usage", "maintenance", "capabilities", "safety"] },
+          "label": { "$ref": "#/$defs/localized" }
+        }
+      }
+    },
+    "objects": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/object" }
+    }
+  },
+  "$defs": {
+    "localized": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": { "^[a-z]{2}(-[A-Z]{2})?$": { "type": "string" } },
+      "additionalProperties": false
+    },
+    "vec3": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "quat": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "vec2": {
+      "type": "array",
+      "items": { "type": "number", "exclusiveMinimum": 0 },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "placement": {
+      "type": "object",
+      "required": ["anchorMode", "position", "rotation"],
+      "additionalProperties": false,
+      "properties": {
+        "anchorMode": { "enum": ["qr-relative", "world"], "default": "qr-relative" },
+        "position": { "$ref": "#/$defs/vec3" },
+        "rotation": { "$ref": "#/$defs/quat" },
+        "size": { "$ref": "#/$defs/vec2" },
+        "scale": { "type": "number", "exclusiveMinimum": 0, "default": 1 },
+        "billboard": { "enum": ["none", "y", "full"], "default": "none" },
+        "source": { "enum": ["photo2d", "headset"], "default": "photo2d" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "object": {
+      "type": "object",
+      "required": ["id", "type", "section", "placement", "config"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "enum": ["video", "pdf", "image", "model", "callout", "text", "hotspot"] },
+        "section": { "enum": ["usage", "maintenance", "capabilities", "safety"] },
+        "title": { "$ref": "#/$defs/localized" },
+        "sort": { "type": "integer", "default": 0 },
+        "placement": { "$ref": "#/$defs/placement" },
+        "config": { "type": "object" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "video" } } },
+          "then": {
+            "properties": {
+              "config": {
+                "type": "object",
+                "required": ["src"],
+                "properties": {
+                  "src": { "type": "string" },
+                  "poster": { "type": "string" },
+                  "loop": { "type": "boolean", "default": false },
+                  "muted": { "type": "boolean", "default": false },
+                  "autoplay": { "type": "boolean", "default": false }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "pdf" } } },
+          "then": {
+            "properties": {
+              "config": {
+                "type": "object",
+                "required": ["src", "pages"],
+                "properties": {
+                  "src": { "type": "string" },
+                  "pages": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+                  "pageAspect": { "type": "number", "exclusiveMinimum": 0 }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "image" } } },
+          "then": {
+            "properties": {
+              "config": {
+                "type": "object",
+                "required": ["src"],
+                "properties": { "src": { "type": "string" } }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "model" } } },
+          "then": {
+            "properties": {
+              "config": {
+                "type": "object",
+                "required": ["src"],
+                "properties": {
+                  "src": { "type": "string" },
+                  "animation": { "type": "string" },
+                  "autoRotate": { "type": "boolean", "default": false }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "callout" } } },
+          "then": {
+            "properties": {
+              "config": {
+                "type": "object",
+                "required": ["target"],
+                "properties": {
+                  "target": { "$ref": "#/$defs/vec3" },
+                  "label": { "$ref": "#/$defs/localized" },
+                  "style": { "enum": ["arrow", "leader", "ring"], "default": "leader" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "text" } } },
+          "then": {
+            "properties": {
+              "config": {
+                "type": "object",
+                "required": ["format", "content"],
+                "properties": {
+                  "format": { "enum": ["markdown", "plain"] },
+                  "content": { "$ref": "#/$defs/localized" },
+                  "maxWidth": { "type": "number", "exclusiveMinimum": 0 }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "hotspot" } } },
+          "then": {
+            "properties": {
+              "config": {
+                "type": "object",
+                "required": ["expands"],
+                "properties": {
+                  "icon": { "type": "string" },
+                  "expands": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

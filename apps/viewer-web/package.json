@@ -1,0 +1,19 @@
+{
+  "name": "@gmp-guide-ra/viewer-web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5174",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 5174"
+  },
+  "devDependencies": {
+    "@types/three": "^0.172.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.11"
+  },
+  "dependencies": {
+    "three": "^0.172.0"
+  }
+}

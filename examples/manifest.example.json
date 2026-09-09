@@ -1,0 +1,124 @@
+{
+  "manifestVersion": "1.0",
+  "machine": {
+    "id": "mac_ab12cd",
+    "name": "Tour CN Haas ST-20",
+    "slug": "tour-cn-haas-st-20",
+    "category": "Tournage",
+    "location": "Atelier B — îlot 3",
+    "languages": ["fr", "en"],
+    "revision": 7,
+    "publishedAt": "2026-09-09T10:00:00Z"
+  },
+  "qr": {
+    "code": "GMP-AB12CD",
+    "payload": "https://guide.gmp.example/m/AB12CD",
+    "physicalSizeMeters": 0.12,
+    "errorCorrection": "H"
+  },
+  "frame": {
+    "convention": "right-handed",
+    "origin": "centre de la matrice de modules du QR (hors quiet zone)",
+    "axes": "X: +droite bord haut, Y: +haut bord gauche, Z: +normale sortante vers l'observateur",
+    "units": "meters"
+  },
+  "sections": [
+    { "id": "usage", "label": { "fr": "Utilisation", "en": "Usage" } },
+    { "id": "maintenance", "label": { "fr": "Entretien", "en": "Maintenance" } },
+    { "id": "capabilities", "label": { "fr": "Capacités", "en": "Capabilities" } },
+    { "id": "safety", "label": { "fr": "Sécurité", "en": "Safety" } }
+  ],
+  "objects": [
+    {
+      "id": "obj_intro_video",
+      "type": "video",
+      "section": "usage",
+      "title": { "fr": "Prise en main (3 min)", "en": "Getting started (3 min)" },
+      "sort": 0,
+      "placement": {
+        "anchorMode": "qr-relative",
+        "position": [0.28, 0.12, 0.04],
+        "rotation": [0, 0, 0, 1],
+        "size": [0.40, 0.225],
+        "billboard": "none",
+        "source": "photo2d",
+        "updatedAt": "2026-09-09T09:40:00Z"
+      },
+      "config": {
+        "src": "https://guide.gmp.example/media/intro-720p.mp4",
+        "poster": "https://guide.gmp.example/media/intro-poster.jpg",
+        "loop": false,
+        "muted": false,
+        "autoplay": false
+      }
+    },
+    {
+      "id": "obj_maint_pdf",
+      "type": "pdf",
+      "section": "maintenance",
+      "title": { "fr": "Plan de maintenance hebdomadaire", "en": "Weekly maintenance plan" },
+      "sort": 0,
+      "placement": {
+        "anchorMode": "qr-relative",
+        "position": [-0.30, 0.05, 0.03],
+        "rotation": [0, 0.2588, 0, 0.9659],
+        "size": [0.30, 0.42],
+        "billboard": "none",
+        "source": "photo2d",
+        "updatedAt": "2026-09-09T09:42:00Z"
+      },
+      "config": {
+        "src": "https://guide.gmp.example/media/maint-plan.pdf",
+        "pages": [
+          "https://guide.gmp.example/media/maint-plan/p1.webp",
+          "https://guide.gmp.example/media/maint-plan/p2.webp"
+        ],
+        "pageAspect": 0.7071
+      }
+    },
+    {
+      "id": "obj_chuck_callout",
+      "type": "callout",
+      "section": "safety",
+      "title": { "fr": "Mandrin — zone d'écrasement", "en": "Chuck — crush zone" },
+      "sort": 0,
+      "placement": {
+        "anchorMode": "qr-relative",
+        "position": [0.05, -0.02, 0.10],
+        "rotation": [0, 0, 0, 1],
+        "billboard": "y",
+        "source": "photo2d",
+        "updatedAt": "2026-09-09T09:45:00Z"
+      },
+      "config": {
+        "target": [0.18, -0.05, 0.14],
+        "label": { "fr": "Ne jamais approcher la main mandrin en rotation", "en": "Never reach near a rotating chuck" },
+        "style": "leader"
+      }
+    },
+    {
+      "id": "obj_specs",
+      "type": "text",
+      "section": "capabilities",
+      "title": { "fr": "Capacités machine", "en": "Machine capabilities" },
+      "sort": 0,
+      "placement": {
+        "anchorMode": "qr-relative",
+        "position": [0.30, -0.20, 0.04],
+        "rotation": [0, 0, 0, 1],
+        "size": [0.32, 0.24],
+        "billboard": "none",
+        "source": "photo2d",
+        "updatedAt": "2026-09-09T09:47:00Z"
+      },
+      "config": {
+        "format": "markdown",
+        "content": {
+          "fr": "**Ø max tournage** : 356 mm\n**Longueur entre pointes** : 508 mm\n**Broche** : 6 000 tr/min\n**Tourelle** : 12 postes",
+          "en": "**Max turning Ø**: 356 mm\n**Between centers**: 508 mm\n**Spindle**: 6,000 rpm\n**Turret**: 12 stations"
+        },
+        "maxWidth": 0.32
+      }
+    }
+  ]
+}

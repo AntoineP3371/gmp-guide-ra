@@ -1,0 +1,18 @@
+{
+  "name": "gmp-guide-ra",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/web",
+    "apps/viewer-web"
+  ],
+  "scripts": {
+    "backend:get": "node backend/scripts/get-pocketbase.mjs",
+    "backend:dev": "node backend/scripts/run.mjs serve",
+    "web:dev": "npm run dev --workspace apps/web",
+    "web:build": "npm run build --workspace apps/web",
+    "viewer:dev": "npm run dev --workspace apps/viewer-web",
+    "viewer:build": "npm run build --workspace apps/viewer-web"
+  }
+}

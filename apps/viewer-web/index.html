@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GMP Guide RA — viewer contrat</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #0f1115;
+        color: #e6e8ec;
+        font-family: system-ui, sans-serif;
+        overflow: hidden;
+      }
+      #hud {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+        background: #181b22cc;
+        border: 1px solid #2c313c;
+        border-radius: 10px;
+        padding: 10px 12px;
+        max-width: 340px;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+      #hud input {
+        width: 100%;
+        margin-top: 4px;
+        background: #0f1115;
+        color: inherit;
+        border: 1px solid #2c313c;
+        border-radius: 6px;
+        padding: 4px 6px;
+      }
+      #err {
+        color: #ff5c5c;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="hud">
+      <strong>Viewer de contrat</strong> — rend un <em>scene manifest</em> sans casque.<br />
+      Repère blanc = QR (origine <code>F_qr</code>). +X rouge, +Y vert, +Z bleu (vers l'observateur).
+      <label>URL d'un manifest (ou <code>?code=GMP-XXXXXX</code> dans l'URL)</label>
+      <input id="src" placeholder="/api/manifest/GMP-XXXXXX  ·  ../../examples/manifest.example.json" />
+      <div id="msg"></div>
+      <div id="err"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

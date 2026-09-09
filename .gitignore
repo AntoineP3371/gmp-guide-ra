@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+
+# PocketBase
+backend/bin/
+backend/pb_data/
+!backend/pb_migrations/
+!backend/pb_hooks/
+
+# Vite / build
+.vite/
+*.local
+.env
+.env.*
+!.env.example
