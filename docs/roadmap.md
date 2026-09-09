@@ -12,11 +12,13 @@
 
 ## Phase 1 — Éditeur de placement
 
-- [ ] Upload médias (image / vidéo / PDF / glb) + vignettes
-- [ ] Hook rasterisation PDF → images par page (`pdftoppm`)
+- [ ] Upload médias (image / vidéo / PDF / glb)
+- [ ] **PDF → pages WebP dans le navigateur** (PDF.js), pas sur le Pi — voir `docs/architecture.md`
+- [ ] Validation vidéo côté client (codec/résolution/poids) + vignette via `<canvas>`
 - [ ] Éditeur 2D : déposer les contenus sur une photo de la machine → offsets `F_qr`
 - [ ] Onglets Utilisation / Entretien / Capacités / Sécurité
 - [ ] Prévisualisation dans le viewer 3D depuis l'éditeur
+- [ ] Build app web → `backend/pb_public/` (servie par PocketBase sur le Pi)
 
 ## Phase 2 — App casque (walking skeleton)
 
@@ -25,6 +27,7 @@
 - [ ] Scan QR (MRUK) → création Spatial Anchor à la pose du QR
 - [ ] Chargement `/api/manifest/:code` → instanciation **d'un** contenu à l'offset du manifest
 - [ ] Conversion repère main droite (manifest) → main gauche (Unity) — voir `docs/manifest-contract.md`
+- [ ] **Cache hors-ligne** manifest + médias par (machine, révision) — requis par la cible Pi 4 2 Go
 
 ## Phase 3 — Boucle d'édition casque
 
@@ -34,7 +37,6 @@
 
 ## Phase 4 — Durcissement
 
-- [ ] Cache hors-ligne (manifests + médias) sur le casque
 - [ ] Shared Spatial Anchors (plusieurs casques, même placement)
 - [ ] Workflow de validation des consignes (draft → review → published)
 - [ ] Analytics (contenus vus, QR illisibles)

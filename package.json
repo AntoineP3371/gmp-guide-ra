@@ -12,6 +12,7 @@
     "backend:dev": "node backend/scripts/run.mjs serve",
     "web:dev": "npm run dev --workspace apps/web",
     "web:build": "npm run build --workspace apps/web",
+    "web:build:pb": "npm run build --workspace apps/web -- --outDir ../../backend/pb_public --emptyOutDir",
     "viewer:dev": "npm run dev --workspace apps/viewer-web",
     "viewer:build": "npm run build --workspace apps/viewer-web"
   }

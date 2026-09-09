@@ -6,6 +6,7 @@ dist/
 # PocketBase
 backend/bin/
 backend/pb_data/
+backend/pb_public/
 !backend/pb_migrations/
 !backend/pb_hooks/
 
