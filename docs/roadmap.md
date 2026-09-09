@@ -7,8 +7,8 @@
 - [x] Schéma PocketBase (`backend/`) : `machines`, `content_items`, `placements`, `manifests`, `anchors`, `analytics_events`
 - [x] Hooks : génération ID/QR, route d'assemblage `/api/publish/:machine`, route `/api/manifest/:code`
 - [x] App web squelette : auth, CRUD machine, génération QR + export PDF, bouton Publier
-- [ ] Mini-viewer 3D (three.js) qui charge un manifest et le rend — **validation du contrat sans casque**
-- [ ] Seed de démo (1 machine, 2 contenus, placements)
+- [x] Mini-viewer 3D (three.js) qui charge un manifest et le rend — **validation du contrat sans casque**
+- [ ] Seed de démo (1 machine, 2 contenus, placements) — bloqué par l'upload média (Phase 1)
 
 ## Phase 1 — Éditeur de placement
 
