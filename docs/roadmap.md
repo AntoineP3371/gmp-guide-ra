@@ -19,10 +19,11 @@
 - [ ] **PDF → pages WebP dans le navigateur** (PDF.js), pas sur le Pi — voir `docs/architecture.md`
 - [ ] Validation vidéo côté client (codec/résolution/poids) + vignette via `<canvas>`
 - [ ] Éditeur 2D : déposer les contenus sur une photo de la machine → offsets `F_qr`
-- [ ] Onglets Utilisation / Entretien / Capacités / Sécurité
-- [ ] **Éditeur de scénario** : liste d'étapes ordonnées (drag to reorder), objets actifs par
-      étape, transition d'entrée, déclencheur d'avancement — écrit `scenario_steps` + bascule
-      `machines.scenario_mode`
+      (en attendant, placement par défaut auto-créé à la création du contenu)
+- [x] Onglets Utilisation / Entretien / Capacités / Sécurité
+- [x] **Éditeur de scénario** : étapes ordonnées (↑/↓), objets actifs par étape, transition
+      d'entrée, déclencheur tap/timer/media_end — écrit `scenario_steps` + bascule
+      `machines.scenario_mode` — vérifié de bout en bout dans le navigateur
 - [ ] Prévisualisation (placement + scénario) dans le viewer 3D depuis l'éditeur
 - [ ] **Déploiement GitHub Pages** : workflow CI, domaine personnalisé `prepa.tondomaine.fr`,
       variable de dépôt `PB_URL`
