@@ -35,6 +35,11 @@ node backend/scripts/run.mjs superuser upsert  # (superuser only ; les users se 
 | `manifests` | `machine`→, `revision`, `data{}`, `published_by`→ | écriture: hook `/api/publish` seulement |
 | `anchors` | `machine`→, `device_id`, `anchor_uuid`, `space`, `shared` | authentifié |
 | `analytics_events` | `machine`→, `object_id`, `event`, `device_id`, `meta{}`, `ts` | create: authentifié · lecture: author+ |
+| `scenario_steps` | `machine`→, `sort`, `title{}`, `object_ids[]`, `enter_transition`, `enter_duration_ms`, `advance_trigger`, `advance_after_seconds` | author+ |
+
+`machines` porte aussi `scenario_mode` (`freeform`\|`guided`, défaut `freeform`) et
+`scenario_always_visible` (array d'ids de `content_items`) — voir
+[`../docs/manifest-contract.md`](../docs/manifest-contract.md) § Scénario.
 
 ᵘ = index unique · → = relation
 
@@ -57,6 +62,20 @@ verrouillage des champs de `placements` quand l'appelant a le rôle `viewer`.
 |---|---|---|
 | `PUBLIC_BASE_URL` | `https://guide.gmp.example` | préfixe des URLs média et du `qr_payload` dans les manifests |
 | `PB_VERSION` | dernière release | version à télécharger (`backend:get`) |
+
+## Pièges JSVM rencontrés (voir commentaires en tête de `pb_hooks/main.pb.js`)
+
+Deux comportements non documentés de ce binding PocketBase 0.40.x, contournés dans le code :
+
+1. Indexer ou lire `.length` sur la valeur de `record.get()` pour un champ `json` peut la
+   corrompre (octets de sa représentation JSON au lieu des éléments décodés). Lecture fiable :
+   `JSON.parse(record.getString(name))`.
+2. Un `DateTime` Go brut embarqué tel quel dans un objet passé à `record.set("champJson", ...)`
+   fait échouer le marshal de **tout** l'enregistrement (PocketBase répond « cannot be blank »
+   sans rapport apparent). Toujours `String(record.get("champDate"))` avant d'embarquer une date.
+
+`backend/scripts/smoketest.mjs` est un script de vérification de bout en bout (pas un test
+automatisé formel) qui couvre ces deux cas — à relancer après toute modification des hooks.
 
 ## À faire (Phase 1)
 

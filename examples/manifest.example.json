@@ -28,6 +28,33 @@
     { "id": "capabilities", "label": { "fr": "Capacités", "en": "Capabilities" } },
     { "id": "safety", "label": { "fr": "Sécurité", "en": "Safety" } }
   ],
+  "scenario": {
+    "mode": "guided",
+    "alwaysVisible": ["obj_chuck_callout"],
+    "steps": [
+      {
+        "id": "step_intro",
+        "title": { "fr": "1. Prise en main" },
+        "objectIds": ["obj_intro_video"],
+        "enter": { "transition": "fade", "durationMs": 400 },
+        "advance": { "trigger": "media_end" }
+      },
+      {
+        "id": "step_specs",
+        "title": { "fr": "2. Capacités machine" },
+        "objectIds": ["obj_specs"],
+        "enter": { "transition": "fade", "durationMs": 300 },
+        "advance": { "trigger": "timer", "afterSeconds": 8 }
+      },
+      {
+        "id": "step_maintenance",
+        "title": { "fr": "3. Plan de maintenance" },
+        "objectIds": ["obj_maint_pdf"],
+        "enter": { "transition": "slide", "durationMs": 300 },
+        "advance": { "trigger": "tap" }
+      }
+    ]
+  },
   "objects": [
     {
       "id": "obj_intro_video",

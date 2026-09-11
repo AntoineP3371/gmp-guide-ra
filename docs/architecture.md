@@ -1,15 +1,16 @@
 # Architecture
 
 ```
-┌─ apps/web (PC, auteurs) ────────┐     ┌─ backend (PocketBase) ────┐     ┌─ apps/headset (Unity, Phase 2) ─┐
+┌─ apps/web (GitHub Pages) ───────┐     ┌─ backend (PocketBase, Pi) ─┐     ┌─ apps/headset (Unity) ──────────┐
 │ • fiches machines               │     │ • REST auto + auth + rôles │     │ • scan QR (MR Utility Kit)       │
-│ • génération / impression QR    │◄───►│ • stockage média (→ S3)   │◄───►│ • Spatial Anchor à la pose QR   │
-│ • upload + placement contenus   │ REST│ • hooks : QR, publish     │ REST│ • instancie les objets du       │
-│ • bouton « Publier »            │     │ • manifests versionnés    │     │   manifest (offsets F_qr)       │
-└─────────────────────────────────┘     └───────────────────────────┘     │ • mode édition → PATCH placements│
-        │                                        ▲                        └─────────────────────────────────┘
-        │ publie                                 │ lit /api/manifest/{code}
-        ▼                                        │
+│ • génération / impression QR    │◄───►│ • stockage média            │◄───►│ • Spatial Anchor à la pose QR   │
+│ • upload + placement contenus   │HTTPS│ • hooks : QR, publish       │HTTPS│ • lecteur générique : instancie │
+│ • éditeur de scénario (étapes)  │ via │ • manifests versionnés      │ via │   objets + exécute le scénario  │
+│ • bouton « Publier »            │Cloud│                             │Cloud│ • mode édition → PATCH placements│
+└─────────────────────────────────┘flare└─────────────────────────────┘flare└─────────────────────────────────┘
+        │                                        ▲          Tunnel                    ▲
+        │ publie                                 │ lit /api/manifest/{code}            │ app privée
+        ▼                                        │                                     │ Meta Device Manager
    apps/viewer-web (three.js) ───────────────────┘   rend un manifest sans casque (validation du contrat)
 ```
 
@@ -21,26 +22,42 @@
   publie instantanément côté web.
 - **Le manifest est le contrat.** Web et Unity ne partagent que
   [`schemas/manifest.schema.json`](../schemas/manifest.schema.json). Voir
-  [`manifest-contract.md`](manifest-contract.md) pour le repère `F_qr` et la conversion Unity.
-- **QR = identifiant + fiducial.** Le payload encode une URL courte (`/m/XXXXXX`) ; l'ID sert à
-  charger le manifest, la géométrie du QR (taille physique connue) sert à poser l'ancre.
-  Après le 1ᵉʳ scan, la Spatial Anchor persiste : le QR n'est plus nécessaire à chaque session.
+  [`manifest-contract.md`](manifest-contract.md) pour le repère `F_qr`, la conversion Unity et
+  le modèle de **scénario** (étapes, chronologie, séquencement).
+- **QR = identifiant + fiducial.** Le payload encode une URL courte (`tondomaine.fr/m/XXXXXX`) ;
+  l'ID sert à charger le manifest, la géométrie du QR (taille physique connue) sert à poser
+  l'ancre. Après le 1ᵉʳ scan, la Spatial Anchor persiste : le QR n'est plus nécessaire à chaque
+  session.
 - **Placement en deux temps.** Grossier sur photo (éditeur PC, `source = "photo2d"`), puis fin
   au casque en 6DoF (`source = "headset"`). Le backend garde la précédence.
+- **Contenu ET scénario découplés du code.** Objets (vidéo/PDF/3D/callout/texte) et leur
+  séquencement (étapes, chronologie, déclencheurs) sont des données servies par le backend.
+  L'app Unity est un *lecteur générique* : on ne la reconstruit que pour des évolutions de
+  fonctionnalités, jamais pour ajouter/modifier une machine ou un guide.
 
 ## Stack
 
 | Brique | Choix | Pourquoi |
 |---|---|---|
-| Backend | PocketBase (Go + SQLite) | 1 binaire auto-hébergeable, auth + fichiers + REST + réel-temps, hooks JS. SQLite suffit à l'échelle atelier. |
-| App web | Svelte + Vite + TS | outil interne, peu de boilerplate ; servie en statique par PocketBase (`backend/pb_public`). |
-| Viewer contrat | three.js | même repère main droite que le manifest → rend sans conversion. |
-| App casque | Unity + Meta XR SDK (Core + MR Utility Kit) | seul chemin viable : Wolvic n'expose pas la caméra WebXR. |
+| Backend | PocketBase (Go + SQLite), sur le Raspberry Pi 4 (2 Go) de l'auteur | 1 binaire auto-hébergeable, auth + fichiers + REST + réel-temps, hooks JS. SQLite suffit à l'échelle atelier. |
+| Exposition du backend | **Cloudflare Tunnel** (DNS du domaine OVH basculé chez Cloudflare) | URL HTTPS stable `api.tondomaine.fr`, rien d'entrant sur le réseau domicile, pas de matériel sur le réseau universitaire → la DSI n'a rien à autoriser. Cache Cloudflare en bonus pour les médias. |
+| App de préparation | Svelte + Vite + TS, **hébergée sur GitHub Pages** (domaine personnalisé `prepa.tondomaine.fr`) | Accessible de partout, gratuite, versionnée avec le repo. |
+| Viewer contrat | three.js (`apps/viewer-web`) | même repère main droite que le manifest → rend sans conversion, valide le contrat sans casque. |
+| App casque | **Unity + Meta XR SDK** (Core + MR Utility Kit), app privée poussée par **Meta Device Manager** | Seul chemin viable pour l'AR ancrée sur QR : Wolvic (navigateur imposé par le MDM, Quest Browser désactivé) n'expose pas la caméra en WebXR. |
+
+## Scénario (chronologie / séquencement / animation)
+
+Voir [`manifest-contract.md`](manifest-contract.md) § Scénario pour le détail. En bref : un
+manifest peut être `freeform` (tous les objets visibles, comportement Phase 0) ou `guided`
+(suite d'**étapes** ordonnées, chacune avec ses objets actifs, une transition d'entrée et un
+déclencheur d'avancement — tap, minuteur, ou fin de lecture média). C'est le mécanisme qui
+couvre la 3ᵉ priorité du projet (préparer des scénarios, pas seulement des objets isolés).
 
 ## Traitements média — **côté client**, pas sur le Pi
 
-Cible de déploiement : **Raspberry Pi 4 2 Go**. Pas de `ffmpeg` ni `pdftoppm` sur le Pi
-(CPU/RAM/carte SD). La préparation des médias se fait dans le navigateur de l'auteur, à l'upload :
+Cible de déploiement du backend : **Raspberry Pi 4 (2 Go)**. Pas de `ffmpeg` ni `pdftoppm` sur
+le Pi (CPU/RAM/carte). La préparation des médias se fait dans le navigateur de l'auteur, à
+l'upload :
 
 - **PDF → images par page** : rendu via **PDF.js** dans l'app web → upload des pages en WebP
   (`media_pages`). Aucun hook backend.
@@ -49,24 +66,39 @@ Cible de déploiement : **Raspberry Pi 4 2 Go**. Pas de `ffmpeg` ni `pdftoppm` s
 - **glTF** : vérif taille/format côté web, upload tel quel.
 - Le backend ne fait que stocker et servir (requêtes Range pour la vidéo).
 
-Conséquence : pas de hook média, pas de sidecar, pas de file d'attente.
-
 ## Contraintes Pi 4 2 Go
 
 | Point | Décision |
 |---|---|
-| Usure / débit carte SD | `pb_data` (SQLite + médias) sur **SSD USB**, pas sur la SD. |
-| Lecture vidéo simultanée par plusieurs casques | **cache hors-ligne côté casque** (télécharge manifest + médias une fois par révision, lecture locale) → passe de la Phase 4 à la **Phase 2 (baseline)**. |
+| Usure / débit du stockage | `pb_data` (SQLite + médias) sur **clé/disque USB dédié**, pas sur la carte de boot. Garder les fichiers originaux sur le PC de l'auteur (la clé n'est qu'une copie de travail). Prévoir plus grand (32–128 Go) au passage à l'échelle atelier. |
+| Lecture vidéo simultanée par plusieurs casques | **cache hors-ligne côté casque** (télécharge manifest + médias une fois par révision, lecture locale) → **baseline dès la Phase 2**, pas un durcissement tardif. |
+| Débit d'envoi du domicile (upload) | Vidéos courtes, qualité raisonnable ; le cache Cloudflare limite les téléchargements répétés depuis le Pi. |
 | RAM (~30–60 Mo PocketBase au repos) | OK ; surveiller les uploads concurrents. |
-| Gros fichiers | offload possible vers S3 / MinIO (NAS) configurable dans l'admin PocketBase. |
 
 ## Déploiement cible
 
-- **Backend + app web : Raspberry Pi 4 (2 Go)** déjà en service, PocketBase accessible sur le LAN.
-  - Binaire `pocketbase_*_linux_arm64` ; `pb_data` sur SSD USB.
-  - L'app web Svelte se build dans **`backend/pb_public/`** → servie par PocketBase, même origine,
-    même port : aucune config CORS, `VITE_PB_URL` inutile en prod.
-  - LAN en http suffit pour l'app web et pour les fetch Unity. TLS optionnel via Caddy + CA locale.
-- App casque : APK signé (keystore dédié, `versionCode` croissant) → app privée Meta Device
-  Manager → groupes de casques. Permission `horizonos.permission.HEADSET_CAMERA`, DUC validé.
-  Doit fonctionner **hors-ligne** une fois le contenu d'une machine mis en cache.
+- **Backend : Raspberry Pi 4 (2 Go), au domicile de l'auteur.**
+  - Binaire `pocketbase_*_linux_arm64` ; `pb_data` sur support USB dédié.
+  - Exposé via **Cloudflare Tunnel** sous `api.tondomaine.fr` (domaine déposé chez OVH, DNS
+    basculé chez Cloudflare — voir ci-dessous). Aucune ouverture de port sur la box, aucun
+    matériel sur un réseau universitaire.
+  - Le Pi n'a pas besoin d'être joignable en continu : seulement au moment de la **publication**
+    d'un contenu et du **chargement** initial d'un casque (ensuite, cache hors-ligne).
+- **App de préparation : GitHub Pages**, domaine personnalisé `prepa.tondomaine.fr`. Build
+  déclenché par une GitHub Action à chaque push (`.github/workflows/deploy-web.yml`), variable
+  de dépôt `PB_URL = https://api.tondomaine.fr` injectée au build.
+- **Domaine : OVH (registrar) + Cloudflare (DNS)**. Le domaine reste enregistré/payé chez OVH ;
+  seuls les serveurs de noms pointent vers Cloudflare, ce qui permet le Tunnel + le cache + la
+  gestion des sous-domaines (`api.`, `prepa.`) au même endroit.
+- **App casque : APK signé** (keystore dédié, `versionCode` croissant) → **app privée Meta
+  Device Manager** → groupes de casques. Permission `horizonos.permission.HEADSET_CAMERA`, Data
+  Use Checkup validé. Doit fonctionner **hors-ligne** une fois le contenu d'une machine mis en
+  cache.
+
+## Pourquoi pas le téléphone / pas de WebAR sur le casque (rappel de décisions déjà prises)
+
+- Un simple **navigateur mobile** aurait été plus simple à déployer, mais la priorité du projet
+  est explicitement l'usage **casque**, avec des contraintes MDM déjà résolues (app privée) —
+  donc pas retenu comme cible principale pour l'instant.
+- **WebAR ancré sur QR dans le casque** est écarté : Wolvic (navigateur imposé) n'expose pas
+  l'accès caméra WebXR nécessaire à la détection du QR. Seule une app native peut le faire.

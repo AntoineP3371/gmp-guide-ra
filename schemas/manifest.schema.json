@@ -6,6 +6,7 @@
   "required": ["manifestVersion", "machine", "qr", "frame", "sections", "objects"],
   "additionalProperties": false,
   "properties": {
+    "scenario": { "$ref": "#/$defs/scenario" },
     "manifestVersion": { "type": "string", "pattern": "^\\d+\\.\\d+$" },
     "machine": {
       "type": "object",
@@ -62,6 +63,47 @@
     }
   },
   "$defs": {
+    "scenario": {
+      "type": "object",
+      "required": ["mode"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "enum": ["freeform", "guided"], "default": "freeform" },
+        "alwaysVisible": { "type": "array", "items": { "type": "string" } },
+        "steps": { "type": "array", "items": { "$ref": "#/$defs/step" } }
+      },
+      "if": { "properties": { "mode": { "const": "guided" } } },
+      "then": { "required": ["mode", "steps"] }
+    },
+    "step": {
+      "type": "object",
+      "required": ["id", "objectIds", "advance"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "$ref": "#/$defs/localized" },
+        "objectIds": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "enter": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "transition": { "enum": ["none", "fade", "pop", "slide"], "default": "fade" },
+            "durationMs": { "type": "integer", "minimum": 0, "default": 300 }
+          }
+        },
+        "advance": {
+          "type": "object",
+          "required": ["trigger"],
+          "additionalProperties": false,
+          "properties": {
+            "trigger": { "enum": ["tap", "timer", "media_end"] },
+            "afterSeconds": { "type": "number", "exclusiveMinimum": 0 }
+          },
+          "if": { "properties": { "trigger": { "const": "timer" } } },
+          "then": { "required": ["trigger", "afterSeconds"] }
+        }
+      }
+    },
     "localized": {
       "type": "object",
       "minProperties": 1,

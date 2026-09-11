@@ -1,31 +1,41 @@
 # Feuille de route
 
-## Phase 0 — Contrat + socle  ← *en cours*
+## Phase 0 — Contrat + socle ✅
 
-- [x] Contrat du *scene manifest* (`schemas/manifest.schema.json` + `docs/manifest-contract.md`)
+- [x] Contrat du *scene manifest* (`schemas/manifest.schema.json` + `docs/manifest-contract.md`),
+      y compris le **scénario** (étapes, chronologie, déclencheurs)
 - [x] Manifest d'exemple (`examples/manifest.example.json`)
-- [x] Schéma PocketBase (`backend/`) : `machines`, `content_items`, `placements`, `manifests`, `anchors`, `analytics_events`
-- [x] Hooks : génération ID/QR, route d'assemblage `/api/publish/:machine`, route `/api/manifest/:code`
+- [x] Schéma PocketBase (`backend/`) : `machines`, `content_items`, `placements`, `manifests`,
+      `anchors`, `analytics_events`, `scenario_steps` (+ `scenario_mode`/`scenario_always_visible`
+      sur `machines`)
+- [x] Hooks : génération ID/QR, route d'assemblage `/api/publish/:machine`, route
+      `/api/manifest/:code` — **testés de bout en bout** (`backend/scripts/smoketest.mjs`)
 - [x] App web squelette : auth, CRUD machine, génération QR + export PDF, bouton Publier
-- [x] Mini-viewer 3D (three.js) qui charge un manifest et le rend — **validation du contrat sans casque**
-- [ ] Seed de démo (1 machine, 2 contenus, placements) — bloqué par l'upload média (Phase 1)
+- [x] Mini-viewer 3D (three.js) qui charge un manifest et le rend — validation du contrat sans casque
 
-## Phase 1 — Éditeur de placement
+## Phase 1 — Éditeur de placement + scénario + déploiement web
 
 - [ ] Upload médias (image / vidéo / PDF / glb)
 - [ ] **PDF → pages WebP dans le navigateur** (PDF.js), pas sur le Pi — voir `docs/architecture.md`
 - [ ] Validation vidéo côté client (codec/résolution/poids) + vignette via `<canvas>`
 - [ ] Éditeur 2D : déposer les contenus sur une photo de la machine → offsets `F_qr`
 - [ ] Onglets Utilisation / Entretien / Capacités / Sécurité
-- [ ] Prévisualisation dans le viewer 3D depuis l'éditeur
-- [ ] Build app web → `backend/pb_public/` (servie par PocketBase sur le Pi)
+- [ ] **Éditeur de scénario** : liste d'étapes ordonnées (drag to reorder), objets actifs par
+      étape, transition d'entrée, déclencheur d'avancement — écrit `scenario_steps` + bascule
+      `machines.scenario_mode`
+- [ ] Prévisualisation (placement + scénario) dans le viewer 3D depuis l'éditeur
+- [ ] **Déploiement GitHub Pages** : workflow CI, domaine personnalisé `prepa.tondomaine.fr`,
+      variable de dépôt `PB_URL`
+- [ ] **Cloudflare Tunnel** sur le Pi : `api.tondomaine.fr`, DNS du domaine OVH basculé chez
+      Cloudflare (geste manuel, une fois)
 
 ## Phase 2 — App casque (walking skeleton)
 
 - [ ] Projet Unity + Meta XR SDK (Core + MR Utility Kit)
 - [ ] Build APK signé, Data Use Checkup, push app privée Meta Device Manager
 - [ ] Scan QR (MRUK) → création Spatial Anchor à la pose du QR
-- [ ] Chargement `/api/manifest/:code` → instanciation **d'un** contenu à l'offset du manifest
+- [ ] Chargement `/api/manifest/:code` → instanciation des objets aux offsets du manifest
+- [ ] **Lecteur de scénario** : exécute les étapes `guided` (transitions, déclencheurs tap/timer/media_end)
 - [ ] Conversion repère main droite (manifest) → main gauche (Unity) — voir `docs/manifest-contract.md`
 - [ ] **Cache hors-ligne** manifest + médias par (machine, révision) — requis par la cible Pi 4 2 Go
 
@@ -39,5 +49,6 @@
 
 - [ ] Shared Spatial Anchors (plusieurs casques, même placement)
 - [ ] Workflow de validation des consignes (draft → review → published)
-- [ ] Analytics (contenus vus, QR illisibles)
+- [ ] Analytics (contenus vus, étapes de scénario suivies, QR illisibles)
 - [ ] Multilingue de bout en bout
+- [ ] Scénarios avec branches conditionnelles (au-delà du linéaire de la Phase 1)

@@ -68,6 +68,48 @@ l'appliquer deux fois aux `model`.
 Chaque objet porte aussi : `id` (stable), `section` (`usage`\|`maintenance`\|`capabilities`\|`safety`),
 `title` (objet localisé `{ "fr": "…", "en": "…" }`), `sort` (entier).
 
+## Scénario (chronologie / séquencement)
+
+Par défaut (`scenario.mode = "freeform"`, ou champ absent) tous les objets d'un manifest sont
+visibles en même temps — c'est le comportement de la Phase 0. Pour un **guide séquencé** (montrer
+une vidéo, puis une fois finie afficher les specs, puis le plan d'entretien…), on passe en
+`mode = "guided"` :
+
+```jsonc
+"scenario": {
+  "mode": "guided",
+  "alwaysVisible": ["obj_chuck_callout"],   // objets visibles quel que soit le step (ex. sécurité)
+  "steps": [
+    {
+      "id": "step_intro",
+      "title": { "fr": "1. Prise en main" },
+      "objectIds": ["obj_intro_video"],               // objets actifs pendant ce step
+      "enter": { "transition": "fade", "durationMs": 400 },
+      "advance": { "trigger": "media_end" }            // passe au step suivant quand la vidéo finit
+    },
+    {
+      "id": "step_specs",
+      "objectIds": ["obj_specs"],
+      "advance": { "trigger": "timer", "afterSeconds": 8 }   // avance automatiquement
+    },
+    {
+      "id": "step_maintenance",
+      "objectIds": ["obj_maint_pdf"],
+      "advance": { "trigger": "tap" }                  // attend une action de l'opérateur
+    }
+  ]
+}
+```
+
+- Un `step` ne montre que les objets listés dans `objectIds`, en plus de `alwaysVisible`. Les
+  autres objets du manifest sont masqués tant qu'ils n'apparaissent pas dans un step.
+- `advance.trigger` : `tap` (l'opérateur valide), `timer` (délai fixe, `afterSeconds`), `media_end`
+  (fin de lecture de la vidéo/audio de l'objet actif).
+- `enter.transition` : indication d'animation d'apparition (`none`\|`fade`\|`pop`\|`slide`) — c'est
+  le client (Unity ou viewer web) qui l'interprète ; le manifest ne décrit que l'intention.
+- Un client qui ne sait pas gérer `scenario` peut ignorer le champ et se comporter comme en
+  `freeform` (tout afficher) — compatibilité descendante garantie par la règle `MINOR` ci-dessous.
+
 ## Structure de haut niveau
 
 ```jsonc
@@ -77,6 +119,7 @@ Chaque objet porte aussi : `id` (stable), `section` (`usage`\|`maintenance`\|`ca
   "qr":       { "code", "payload", "physicalSizeMeters", "errorCorrection" },
   "frame":    { "convention": "right-handed", "origin": "...", "axes": "...", "units": "meters" },
   "sections": [ { "id": "usage", "label": { "fr": "Utilisation", "en": "Usage" } }, … ],
+  "scenario": { "mode": "freeform" | "guided", "alwaysVisible": [...], "steps": [...] },  // optionnel
   "objects":  [ { "id", "type", "section", "title", "sort", "placement", "config" }, … ]
 }
 ```

@@ -1,0 +1,59 @@
+name: Deploy web (préparation) to GitHub Pages
+
+# Publie apps/web/ sur GitHub Pages à chaque push sur la branche par défaut.
+# Prérequis (une fois, dans Settings du dépôt) :
+#   1. Settings > Pages > Source = "GitHub Actions"
+#   2. Settings > Secrets and variables > Actions > Variables
+#        PB_URL = https://api.tondomaine.fr   (URL publique du backend PocketBase, via Cloudflare Tunnel)
+#   3. Domaine personnalisé (optionnel) : Settings > Pages > Custom domain = prepa.tondomaine.fr
+#      + chez Cloudflare, un enregistrement CNAME `prepa` -> `<user>.github.io`
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "apps/web/**"
+      - ".github/workflows/deploy-web.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build --workspace apps/web
+        env:
+          # Origine du backend au moment du build. Laissé vide, l'app tape sa propre origine
+          # (utile seulement si web ET backend sont un jour sur le même domaine).
+          VITE_PB_URL: ${{ vars.PB_URL }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
