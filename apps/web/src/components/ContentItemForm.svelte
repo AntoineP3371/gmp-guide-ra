@@ -1,11 +1,11 @@
 <script lang="ts">
   import { pb } from "../lib/pb";
   import { OBJECT_TYPES, SECTIONS, defaultConfig, defaultPlacement } from "../lib/contentTypes";
-  import type { ContentItem, ObjectType, Section } from "../lib/types";
+  import type { ContentItem, ObjectType, Placement, Section } from "../lib/types";
 
   let { machineId, onCreated } = $props<{
     machineId: string;
-    onCreated: (item: ContentItem) => void;
+    onCreated: (item: ContentItem, placement: Placement) => void;
   }>();
 
   let open = $state(false);
@@ -70,11 +70,11 @@
         config: buildConfig(),
         sort: 0,
       });
-      await pb.collection("placements").create({
+      const placement = await pb.collection("placements").create<Placement>({
         content_item: rec.id,
         ...defaultPlacement(type),
       });
-      onCreated(rec);
+      onCreated(rec, placement);
       titleFr = "";
       resetFields();
       open = false;

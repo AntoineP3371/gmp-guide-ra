@@ -18,8 +18,9 @@
 - [ ] Upload médias (image / vidéo / PDF / glb)
 - [ ] **PDF → pages WebP dans le navigateur** (PDF.js), pas sur le Pi — voir `docs/architecture.md`
 - [ ] Validation vidéo côté client (codec/résolution/poids) + vignette via `<canvas>`
-- [ ] Éditeur 2D : déposer les contenus sur une photo de la machine → offsets `F_qr`
-      (en attendant, placement par défaut auto-créé à la création du contenu)
+- [x] Éditeur 2D : déposer les contenus sur une photo de la machine → offsets `F_qr`
+      (upload photo, calibration QR 2 clics, placer/glisser les repères) — vérifié de bout en
+      bout dans le navigateur (calibration, placement, glisser-déposer, persistance après reload)
 - [x] Onglets Utilisation / Entretien / Capacités / Sécurité
 - [x] **Éditeur de scénario** : étapes ordonnées (↑/↓), objets actifs par étape, transition
       d'entrée, déclencheur tap/timer/media_end — écrit `scenario_steps` + bascule

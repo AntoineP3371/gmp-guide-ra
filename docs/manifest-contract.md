@@ -53,6 +53,16 @@ l'appliquer deux fois aux `model`.
 - `source` + `updatedAt` : quand le casque réécrit un placement, il pose `source = "headset"`.
   L'app web n'écrase un placement `headset` que sur action explicite de l'auteur.
 
+### Comment l'éditeur 2D calcule `position`
+
+`apps/web/src/components/PlacementEditor.svelte` place les objets sur une photo de la machine :
+l'auteur calibre une fois la position du QR sur la photo (clic au centre, puis clic sur son bord
+droit — ce 2ᵉ point donne un demi-côté, d'où un ×2 dans le calcul), ce qui fixe une origine et une
+échelle **mètres par pixel** (dérivée de `qr_size_m`). Chaque clic/glisser sur la photo est ensuite
+converti en `[x, y]` par cette échelle ; **`z` n'est pas modifié** (une photo 2D ne donne pas la
+profondeur — le casque l'affine en 6DoF). C'est un placement **grossier**, pas la source de vérité
+finale : la rotation reste inchangée, seul `x,y` bouge.
+
 ## Types d'objets
 
 | `type` | Charge utile (`config`) | Géométrie | Notes |

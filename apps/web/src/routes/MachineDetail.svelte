@@ -7,12 +7,14 @@
   import { printMachineLabel } from "../lib/print";
   import ContentItemForm from "../components/ContentItemForm.svelte";
   import ScenarioEditor from "../components/ScenarioEditor.svelte";
-  import type { Machine, ContentItem, Ecc } from "../lib/types";
+  import PlacementEditor from "../components/PlacementEditor.svelte";
+  import type { Machine, ContentItem, Placement, Ecc } from "../lib/types";
 
   let { params } = $props<{ params: { id: string } }>();
 
   let machine = $state<Machine | null>(null);
   let items = $state<ContentItem[]>([]);
+  let placements = $state<Placement[]>([]);
   let qrHtml = $state("");
   let err = $state("");
   let msg = $state("");
@@ -39,6 +41,12 @@
         filter: `machine="${params.id}"`,
         sort: "section,sort",
       });
+      placements =
+        items.length === 0
+          ? []
+          : await pb.collection("placements").getFullList<Placement>({
+              filter: items.map((i) => `content_item="${i.id}"`).join(" || "),
+            });
       await refreshQr();
     } catch (e) {
       err = String(e);
@@ -93,6 +101,7 @@
     try {
       await pb.collection("content_items").delete(item.id);
       items = items.filter((i) => i.id !== item.id);
+      placements = placements.filter((p) => p.content_item !== item.id);
     } catch (x) {
       err = String(x);
     }
@@ -192,7 +201,13 @@
     </div>
 
     {#if canEdit()}
-      <ContentItemForm machineId={machine.id} onCreated={(it) => (items = [...items, it])} />
+      <ContentItemForm
+        machineId={machine.id}
+        onCreated={(it, pl) => {
+          items = [...items, it];
+          placements = [...placements, pl];
+        }}
+      />
     {/if}
 
     {#each bySection as grp}
@@ -217,11 +232,20 @@
     {/each}
 
     <p class="muted small">
-      Chaque contenu reçoit un placement par défaut (à affiner plus tard dans l'éditeur 2D sur
-      photo — Phase 1, pas encore construit). Les médias vidéo/PDF/image se déclarent ici par URL
-      en attendant l'upload direct.
+      Chaque contenu reçoit un placement par défaut, à affiner ci-dessous sur la photo (puis en
+      6DoF au casque). Les médias vidéo/PDF/image se déclarent ici par URL en attendant l'upload
+      direct.
     </p>
   </section>
+
+  <PlacementEditor
+    {machine}
+    {items}
+    {placements}
+    canEdit={canEdit()}
+    onMachineChange={(m) => (machine = m)}
+    onPlacementChange={(p) => (placements = placements.map((x) => (x.id === p.id ? p : x)))}
+  />
 
   <ScenarioEditor
     {machine}

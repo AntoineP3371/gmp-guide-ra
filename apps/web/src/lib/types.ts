@@ -24,6 +24,10 @@ export interface Machine {
   current_revision: number;
   scenario_mode: ScenarioMode;
   scenario_always_visible?: string[];
+  /** Position du QR dans la 1ère photo, fraction [fx, fy] 0..1 — calibration de PlacementEditor. */
+  photo_qr_origin?: [number, number];
+  /** Largeur du QR dans la photo, fraction 0..1 de la largeur totale de l'image. */
+  photo_qr_width_frac?: number;
   created: string;
   updated: string;
 }
