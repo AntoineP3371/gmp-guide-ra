@@ -3,6 +3,9 @@ export type Ecc = "L" | "M" | "Q" | "H";
 export type Section = "usage" | "maintenance" | "capabilities" | "safety";
 export type ObjectType = "video" | "pdf" | "image" | "model" | "callout" | "text" | "hotspot";
 export type MachineStatus = "draft" | "review" | "published";
+export type ScenarioMode = "freeform" | "guided";
+export type Transition = "none" | "fade" | "pop" | "slide";
+export type AdvanceTrigger = "tap" | "timer" | "media_end";
 
 export interface Machine {
   id: string;
@@ -19,8 +22,22 @@ export interface Machine {
   qr_ecc: Ecc;
   status: MachineStatus;
   current_revision: number;
+  scenario_mode: ScenarioMode;
+  scenario_always_visible?: string[];
   created: string;
   updated: string;
+}
+
+export interface ScenarioStep {
+  id: string;
+  machine: string;
+  sort: number;
+  title?: Record<string, string>;
+  object_ids: string[];
+  enter_transition?: Transition;
+  enter_duration_ms?: number;
+  advance_trigger: AdvanceTrigger;
+  advance_after_seconds?: number;
 }
 
 export interface ContentItem {

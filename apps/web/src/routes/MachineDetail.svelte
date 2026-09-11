@@ -5,6 +5,8 @@
   import { canEdit } from "../lib/auth.svelte";
   import { qrSvg } from "../lib/qr";
   import { printMachineLabel } from "../lib/print";
+  import ContentItemForm from "../components/ContentItemForm.svelte";
+  import ScenarioEditor from "../components/ScenarioEditor.svelte";
   import type { Machine, ContentItem, Ecc } from "../lib/types";
 
   let { params } = $props<{ params: { id: string } }>();
@@ -83,6 +85,16 @@
       err = String(x);
     } finally {
       publishing = false;
+    }
+  }
+
+  async function removeItem(item: ContentItem) {
+    if (!confirm(`Supprimer « ${item.title?.fr ?? item.type} » ?`)) return;
+    try {
+      await pb.collection("content_items").delete(item.id);
+      items = items.filter((i) => i.id !== item.id);
+    } catch (x) {
+      err = String(x);
     }
   }
 
@@ -179,6 +191,10 @@
       </div>
     </div>
 
+    {#if canEdit()}
+      <ContentItemForm machineId={machine.id} onCreated={(it) => (items = [...items, it])} />
+    {/if}
+
     {#each bySection as grp}
       <div class="section">
         <h4>{SECTION_LABEL[grp.section]}</h4>
@@ -190,6 +206,9 @@
               <li>
                 <span class="pill">{it.type}</span>
                 {it.title?.fr ?? it.id}
+                {#if canEdit()}
+                  <button class="ghost" onclick={() => removeItem(it)}>Supprimer</button>
+                {/if}
               </li>
             {/each}
           </ul>
@@ -198,11 +217,18 @@
     {/each}
 
     <p class="muted small">
-      L'upload et le placement des contenus arrivent en <strong>Phase 1</strong> (éditeur 2D sur
-      photo). Pour l'instant : création de la machine, génération/impression du QR, et publication
-      d'un manifest (vide tant qu'aucun contenu n'est placé).
+      Chaque contenu reçoit un placement par défaut (à affiner plus tard dans l'éditeur 2D sur
+      photo — Phase 1, pas encore construit). Les médias vidéo/PDF/image se déclarent ici par URL
+      en attendant l'upload direct.
     </p>
   </section>
+
+  <ScenarioEditor
+    {machine}
+    {items}
+    canEdit={canEdit()}
+    onMachineChange={(m) => (machine = m)}
+  />
 {/if}
 
 <style>
@@ -246,6 +272,14 @@
   }
   ul {
     margin: 0.3rem 0;
+    list-style: none;
+    padding: 0;
+  }
+  ul li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
   }
   @media (max-width: 800px) {
     .cols {

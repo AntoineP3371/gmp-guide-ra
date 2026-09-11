@@ -40,7 +40,11 @@ migrate(
         },
         { type: "number", name: "sort", onlyInt: true }, // PB : `required` + number rejette 0 ("cannot be blank")
         { type: "json", name: "title", maxSize: 2000 },
-        { type: "json", name: "object_ids", required: true, maxSize: 4000 },
+        // PAS required : un tableau JSON vide ([]) échoue la validation "required" de
+        // PocketBase (même piège empirique que sort:0 — voir backend/README.md § Pièges
+        // JSVM). Une étape fraîchement créée n'a normalement aucun objet le temps que
+        // l'auteur les coche dans l'éditeur.
+        { type: "json", name: "object_ids", maxSize: 4000 },
         {
           type: "select",
           name: "enter_transition",
