@@ -52,13 +52,24 @@
 
 ## Phase 2 — App casque (walking skeleton)
 
-- [ ] Projet Unity + Meta XR SDK (Core + MR Utility Kit)
-- [ ] Build APK signé, Data Use Checkup, push app privée Meta Device Manager
-- [ ] Scan QR (MRUK) → création Spatial Anchor à la pose du QR
-- [ ] Chargement `/api/manifest/:code` → instanciation des objets aux offsets du manifest
-- [ ] **Lecteur de scénario** : exécute les étapes `guided` (transitions, déclencheurs tap/timer/media_end)
-- [ ] Conversion repère main droite (manifest) → main gauche (Unity) — voir `docs/manifest-contract.md`
+Développée depuis un **VDI** par l'utilisateur (accès Internet/GitHub confirmé) — l'agent ne peut
+pas exécuter Unity ni MRUK lui-même, seulement écrire/relire du code et guider. `apps/headset/`
+du dépôt est la source de vérité entre les sessions VDI (voir `apps/headset/README.md`).
+
+- [ ] Projet Unity créé dans le VDI + Meta XR SDK (Core + MR Utility Kit) — voir
+      `apps/headset/docs/SETUP.md`
+- [x] Modèles C# du manifest + client HTTP + auth PocketBase (`apps/headset/Assets/Scripts/Manifest/`)
+- [x] Conversion repère main droite (manifest) → main gauche (Unity) — `FrameConversion.cs`,
+      voir aussi `docs/manifest-contract.md`
+- [ ] Scan QR (MRUK) → création Spatial Anchor à la pose du QR — ébauche fournie
+      (`QrManifestLoader.cs`), **non compilée/vérifiée**, à recaler sur l'échantillon officiel
+      MRUK une fois dans l'éditeur
+- [ ] Instanciation des objets aux offsets du manifest (vidéo/PDF/image/modèle/callout/texte/hotspot)
+- [ ] **Lecteur de scénario** : exécute les étapes `guided` (transitions, déclencheurs
+      tap/timer/media_end) — logique de référence déjà écrite et vérifiée côté web
+      (`packages/viewer3d/src/build.ts` → `applyScenarioVisibility`), à porter en C# à l'identique
 - [ ] **Cache hors-ligne** manifest + médias par (machine, révision) — requis par la cible Pi 4 2 Go
+- [ ] Build APK signé, Data Use Checkup, push app privée Meta Device Manager
 
 ## Phase 3 — Boucle d'édition casque
 
