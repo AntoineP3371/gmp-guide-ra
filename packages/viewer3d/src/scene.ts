@@ -6,20 +6,33 @@ export interface Stage {
   camera: THREE.PerspectiveCamera;
   renderer: THREE.WebGLRenderer;
   controls: OrbitControls;
-  content: THREE.Group; // vider ici entre deux manifests
+  content: THREE.Group; // vider (ou déléguer à buildObjects) entre deux manifests
+  /** Arrête la boucle de rendu, libère le contexte WebGL, retire le canvas du DOM. */
+  dispose(): void;
 }
 
-export function createStage(): Stage {
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0f1115);
+export interface StageOptions {
+  /** Élément dans lequel monter le canvas — dimensionné par son CSS (pas forcément le viewport). */
+  container: HTMLElement;
+  background?: number;
+}
 
-  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.01, 100);
+export function createStage(opts: StageOptions): Stage {
+  const { container } = opts;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(opts.background ?? 0x0f1115);
+
+  const w = () => Math.max(1, container.clientWidth);
+  const h = () => Math.max(1, container.clientHeight);
+
+  const camera = new THREE.PerspectiveCamera(55, w() / h(), 0.01, 100);
   camera.position.set(0.6, 0.4, 1.2);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+  renderer.setSize(w(), h());
+  container.appendChild(renderer.domElement);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -49,18 +62,32 @@ export function createStage(): Stage {
   const content = new THREE.Group();
   scene.add(content);
 
-  window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
+  const ro = new ResizeObserver(() => {
+    camera.aspect = w() / h();
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(w(), h());
   });
+  ro.observe(container);
 
+  let raf = 0;
+  let disposed = false;
   function tick() {
-    requestAnimationFrame(tick);
+    if (disposed) return;
+    raf = requestAnimationFrame(tick);
     controls.update();
     renderer.render(scene, camera);
   }
   tick();
 
-  return { scene, camera, renderer, controls, content };
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    cancelAnimationFrame(raf);
+    ro.disconnect();
+    controls.dispose();
+    renderer.dispose();
+    if (renderer.domElement.parentNode === container) container.removeChild(renderer.domElement);
+  }
+
+  return { scene, camera, renderer, controls, content, dispose };
 }

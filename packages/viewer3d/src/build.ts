@@ -21,9 +21,21 @@ interface ManifestObject {
   placement: Placement;
   config: any;
 }
+export interface ScenarioStep {
+  id: string;
+  title?: Record<string, string>;
+  objectIds: string[];
+  advance?: { trigger: string; afterSeconds?: number };
+}
+export interface Scenario {
+  mode: "freeform" | "guided";
+  alwaysVisible?: string[];
+  steps?: ScenarioStep[];
+}
 export interface Manifest {
   machine: { name: string };
   qr: { physicalSizeMeters: number };
+  scenario?: Scenario;
   objects: ManifestObject[];
 }
 
@@ -43,6 +55,7 @@ export function buildObjects(manifest: Manifest, group: THREE.Group, camera: THR
 
   for (const o of manifest.objects) {
     const node = new THREE.Group();
+    node.userData.objectId = o.id;
     node.position.fromArray(o.placement.position);
     node.quaternion.fromArray(o.placement.rotation);
     const [w, h] = o.placement.size ?? [0.3, 0.2];
@@ -115,6 +128,26 @@ export function buildObjects(manifest: Manifest, group: THREE.Group, camera: THR
     group.add(node);
   }
   return warnings;
+}
+
+/**
+ * Applique la visibilité selon le scénario : `freeform` -> tout visible ; `guided` -> seulement
+ * `alwaysVisible` + les objets de l'étape `stepIndex`. Les nœuds sont retrouvés via
+ * `userData.objectId` posé par `buildObjects`.
+ */
+export function applyScenarioVisibility(manifest: Manifest, group: THREE.Group, stepIndex: number): void {
+  const scenario = manifest.scenario;
+  if (!scenario || scenario.mode !== "guided") {
+    for (const child of group.children) child.visible = true;
+    return;
+  }
+  const always = new Set(scenario.alwaysVisible ?? []);
+  const step = (scenario.steps ?? [])[stepIndex];
+  const active = new Set(step?.objectIds ?? []);
+  for (const child of group.children) {
+    const id = child.userData.objectId as string | undefined;
+    child.visible = !!id && (always.has(id) || active.has(id));
+  }
 }
 
 function texturedPlane(

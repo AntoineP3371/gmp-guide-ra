@@ -42,6 +42,33 @@
       canvas {
         display: block;
       }
+      #stepnav {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid #2c313c;
+        display: none;
+        align-items: center;
+        gap: 8px;
+      }
+      #stepnav.show {
+        display: flex;
+      }
+      #stepnav button {
+        background: #1f232c;
+        color: #e6e8ec;
+        border: 1px solid #2c313c;
+        border-radius: 6px;
+        padding: 3px 8px;
+        cursor: pointer;
+        font: inherit;
+      }
+      #stepnav button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      #steplabel {
+        flex: 1;
+      }
     </style>
   </head>
   <body>
@@ -52,6 +79,11 @@
       <input id="src" placeholder="/api/manifest/GMP-XXXXXX  ·  ../../examples/manifest.example.json" />
       <div id="msg"></div>
       <div id="err"></div>
+      <div id="stepnav">
+        <button id="prevStep">← Étape</button>
+        <span id="steplabel"></span>
+        <button id="nextStep">Étape →</button>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

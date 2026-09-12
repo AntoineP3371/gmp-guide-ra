@@ -33,7 +33,12 @@
 - [x] **Éditeur de scénario** : étapes ordonnées (↑/↓), objets actifs par étape, transition
       d'entrée, déclencheur tap/timer/media_end — écrit `scenario_steps` + bascule
       `machines.scenario_mode` — vérifié de bout en bout dans le navigateur
-- [ ] Prévisualisation (placement + scénario) dans le viewer 3D depuis l'éditeur
+- [x] **Prévisualisation (placement + scénario) dans le viewer 3D depuis l'éditeur** : panneau
+      « Aperçu 3D » dans la fiche machine, manifest de brouillon assemblé côté client (sans
+      passer par `/api/publish`), navigation étape par étape pour le mode guidé. Logique de
+      rendu partagée avec `apps/viewer-web` via le nouveau package `packages/viewer3d`
+      (`buildObjects` + `applyScenarioVisibility`, désormais scénario-aware dans les deux apps)
+      — vérifié de bout en bout dans le navigateur (standalone et intégré à l'éditeur)
 - [x] **Déploiement GitHub Pages** : workflow CI en place et vert, app en ligne sur
       `gmpbordeaux.fr/gmp-guide-ra/` (domaine personnalisé dédié `prepa.` pas encore fait,
       page de projet suffit pour l'instant)

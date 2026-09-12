@@ -8,6 +8,7 @@
   import ContentItemForm from "../components/ContentItemForm.svelte";
   import ScenarioEditor from "../components/ScenarioEditor.svelte";
   import PlacementEditor from "../components/PlacementEditor.svelte";
+  import PreviewPanel from "../components/PreviewPanel.svelte";
   import type { Machine, ContentItem, Placement, Ecc } from "../lib/types";
 
   let { params } = $props<{ params: { id: string } }>();
@@ -253,6 +254,8 @@
     canEdit={canEdit()}
     onMachineChange={(m) => (machine = m)}
   />
+
+  <PreviewPanel {machine} />
 {/if}
 
 <style>

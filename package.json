@@ -5,7 +5,8 @@
   "type": "module",
   "workspaces": [
     "apps/web",
-    "apps/viewer-web"
+    "apps/viewer-web",
+    "packages/viewer3d"
   ],
   "scripts": {
     "backend:get": "node backend/scripts/get-pocketbase.mjs",
