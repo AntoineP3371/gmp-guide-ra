@@ -15,9 +15,17 @@
 
 ## Phase 1 — Éditeur de placement + scénario + déploiement web
 
-- [ ] Upload médias (image / vidéo / PDF / glb)
-- [ ] **PDF → pages WebP dans le navigateur** (PDF.js), pas sur le Pi — voir `docs/architecture.md`
-- [ ] Validation vidéo côté client (codec/résolution/poids) + vignette via `<canvas>`
+- [x] Upload médias (image / vidéo / PDF / glb) : `ContentItemForm` envoie de vrais fichiers
+      (`FormData` multi-fichiers) plutôt que des URLs, avec repli URL externe si pas de fichier
+- [x] **PDF → pages WebP dans le navigateur** (`pdfjs-dist`), pas sur le Pi — `lib/media.ts`
+- [x] Validation vidéo côté client (durée/résolution/poids, alerte si débit > 6 Mbps) + vignette
+      capturée via `<canvas>` — `lib/media.ts`
+  - ⚠️ Le mécanisme d'upload multi-fichiers (`media` + `media_pages[]` en une requête, résolution
+    en URLs dans le manifest publié) est **vérifié de bout en bout côté backend** (multipart réel
+    + publish). Le rendu PDF.js et la capture vidéo sont du DOM pur (canvas/`<video>`) : build
+    TypeScript propre contre l'API réelle de `pdfjs-dist`, mais pas encore rejoué dans un vrai
+    navigateur cette session (outil de navigateur indisponible ponctuellement) — à repasser au
+    prochain tour avant de considérer la case définitivement fermée.
 - [x] Éditeur 2D : déposer les contenus sur une photo de la machine → offsets `F_qr`
       (upload photo, calibration QR 2 clics, placer/glisser les repères) — vérifié de bout en
       bout dans le navigateur (calibration, placement, glisser-déposer, persistance après reload)
@@ -26,8 +34,9 @@
       d'entrée, déclencheur tap/timer/media_end — écrit `scenario_steps` + bascule
       `machines.scenario_mode` — vérifié de bout en bout dans le navigateur
 - [ ] Prévisualisation (placement + scénario) dans le viewer 3D depuis l'éditeur
-- [ ] **Déploiement GitHub Pages** : workflow CI, domaine personnalisé `prepa.tondomaine.fr`,
-      variable de dépôt `PB_URL`
+- [x] **Déploiement GitHub Pages** : workflow CI en place et vert, app en ligne sur
+      `gmpbordeaux.fr/gmp-guide-ra/` (domaine personnalisé dédié `prepa.` pas encore fait,
+      page de projet suffit pour l'instant)
 - [ ] **Cloudflare Tunnel** sur le Pi : `api.tondomaine.fr`, DNS du domaine OVH basculé chez
       Cloudflare (geste manuel, une fois)
 
