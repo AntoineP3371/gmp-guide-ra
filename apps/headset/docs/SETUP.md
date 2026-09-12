@@ -1,9 +1,10 @@
 # Mise en place du projet Unity (dans le VDI) — pas à pas
 
-Ce guide part du principe que tu n'as jamais ouvert Unity. Trois zones sont marquées **⚠️
-incertain** parce que je ne peux pas les vérifier sans éditeur Unity sous les yeux (l'interface
-change souvent) — ce sont les seuls endroits où il faudra peut-être improviser un peu par rapport
-à ce que je décris. Partout ailleurs, ce sont des menus stables depuis des années.
+Ce guide part du principe que tu n'as jamais ouvert Unity. Certaines zones sont marquées **⚠️
+incertain** parce que je ne peux pas les vérifier sans éditeur/casque sous les yeux (interfaces
+qui changent souvent, ou jamais vues par moi) — ce sont les seuls endroits où il faudra peut-être
+improviser par rapport à ce que je décris. Partout ailleurs, ce sont des menus stables depuis des
+années.
 
 **Avant de commencer** : clone le dépôt dans le VDI si ce n'est pas déjà fait.
 ```bash
@@ -12,15 +13,16 @@ git clone https://github.com/AntoineP3371/gmp-guide-ra.git
 
 ---
 
-## Étape 0 — Vérifier le point qui peut tout bloquer
+## Étape 0 — Confirmé : pas d'USB, pas de mode développeur visible
 
-Le Quest 3 devra être branché en USB à la machine qui fait tourner Unity pour le tester
-(« Build & Run »). **Si ton VDI ne transmet pas l'USB** (pas de « USB passthrough » côté client
-VDI), cette étape précise (branchement + test sur casque) ne pourra pas se faire depuis le VDI —
-tout le reste (créer le projet, écrire/compiler le code, faire un `.apk`) fonctionnera quand même.
-Pas besoin de le vérifier maintenant, juste à garder en tête : si à l'étape 11 le casque
-n'apparaît jamais dans Unity, c'est probablement ça, et il faudra faire cette dernière étape
-depuis une machine qui voit vraiment le port USB.
+Deux contraintes déjà vérifiées pour ce projet, pas la peine de retester :
+- **Le VDI ne transmet pas l'USB** au casque → pas de « Build & Run » classique.
+- **Les casques en MDM ne semblent pas avoir de mode développeur accessible**.
+
+Conséquence : créer le projet, écrire/compiler le code, produire un `.apk` — tout ça se fait
+normalement dans le VDI (étapes 1 à 10). Seule l'**étape 11** (tester sur le casque) change de
+méthode : APK construit dans le VDI, sorti du VDI, puis poussé au casque **par le réseau** via
+Meta Device Manager plutôt que par câble — détaillé dans l'étape 11.
 
 ---
 
@@ -193,21 +195,75 @@ vérifier.)
      tu ne l'as plus sous la main, je ne le remets pas ici en clair)
 6. **Ctrl+S** (ou File → Save) pour sauvegarder la scène.
 
-## Étape 11 — Build & Run sur le casque
+## Étape 10.5 — Voir les logs sans câble ni mode développeur
 
-1. Casque en **mode développeur** activé (app Meta Horizon sur téléphone → réglages du casque →
-   mode développeur — si ce n'est pas déjà fait, c'est indépendant du VDI).
-2. Branche le Quest 3 en USB à la machine qui exécute réellement l'éditeur (voir Étape 0 si ça
-   coince ici).
-3. Dans le casque, accepte le popup **« Autoriser le débogage USB »**.
-4. Unity → **File → Build Settings** → onglet Android toujours sélectionné → en bas, menu
-   déroulant **« Run Device »** : le Quest doit apparaître dans la liste une fois détecté.
-5. **Build And Run**. Choisis un dossier de sortie pour l'APK si demandé. Premier build = plusieurs
-   minutes.
-6. Une fois lancé sur le casque, vise un QR imprimé et observe. Pour voir les logs en détail :
-   `adb logcat -s Unity` depuis un terminal qui a accès à l'ADB (celui utilisé pour builder).
-   Tu dois voir `[GMP] Authentifié...` au démarrage, puis `[GMP] QR détecté...` et
-   `[GMP] Manifest chargé...` en visant le QR.
+Sans USB ni logcat, `Debug.Log` ne mène nulle part. `OnScreenLogger.cs` (déjà copié à l'étape 9)
+affiche les derniers logs **directement dans la vue du casque** — aucun réglage dans l'éditeur au
+delà de l'accrocher :
+
+1. **Hierarchy** → clic droit → **Create Empty**, renomme en `Logger`.
+2. **Add Component** → `On Screen Logger`.
+3. Sauvegarde la scène (Ctrl+S).
+
+Non testé sur casque réel de mon côté (pas d'éditeur/casque disponible ici) — si le panneau
+n'apparaît pas une fois l'app lancée, le plus probable est que `Camera.main` ne pointe pas vers la
+caméra du rig Meta (vérifie qu'elle a bien le tag **MainCamera** dans son Inspector).
+
+## Étape 11 — Build de l'APK, puis déploiement via Meta Device Manager
+
+Le VDI ne voit pas le port USB du casque (confirmé), et les casques en MDM ne semblent pas avoir
+de mode développeur accessible — donc pas de « Build & Run » classique ici. On construit l'APK
+dans le VDI, on le sort du VDI, et on le pousse au casque **par le réseau**, via le même canal que
+pour la mise en prod finale (Meta Device Manager) plutôt que par câble.
+
+### 11a. Construire juste l'APK (pas de casque nécessaire)
+
+1. **File → Build Settings**, onglet **Android** sélectionné.
+2. Bouton **Build** (pas *Build And Run* — celui-ci ne demande pas de casque connecté).
+3. Choisis un nom/dossier de sortie, ex. `gmp-guide-ra.apk`. Ça peut prendre plusieurs minutes la
+   première fois.
+
+### 11b. Sortir l'APK du VDI
+
+Deux façons possibles, prends celle qui marche chez toi :
+
+- **Si ton client VDI a un transfert de fichiers dédié** (souvent distinct du presse-papiers texte
+  — Citrix/Horizon/RDP en ont un en général, cherche une icône ou un menu « Transfer files » /
+  « Send to local » dans la barre d'outils de la fenêtre VDI) : utilise-le directement sur le
+  `.apk`.
+- **Sinon, en passant par le Pi** (fonctionne à coup sûr puisque déjà en place) : depuis un
+  terminal dans le VDI (PowerShell/CMD/Bash selon l'OS du VDI) :
+  ```bash
+  scp gmp-guide-ra.apk pi@raspberrypi.local:/home/pi/
+  ```
+  (mot de passe : celui du compte `pi`, ou ta clé si tu l'as aussi copiée dans le VDI). Puis,
+  depuis la machine qui a accès au casque :
+  ```bash
+  scp pi@raspberrypi.local:/home/pi/gmp-guide-ra.apk .
+  ```
+  Pense à supprimer le fichier du Pi une fois récupéré (`ssh pi@raspberrypi.local rm gmp-guide-ra.apk`)
+  — ce n'est qu'un point de passage temporaire, pas un endroit pour stocker des builds.
+
+### 11c. Pousser l'app au casque via Meta Device Manager — ⚠️ incertain
+
+Je n'ai jamais eu ce tableau de bord sous les yeux, donc je décris le principe plutôt que des
+clics exacts :
+
+1. **Meta Horizon Developer Center** (developers.meta.com/horizon) → ton organisation → section
+   apps privées / **Device Manager**.
+2. Créer/mettre à jour une **app privée** en uploadant `gmp-guide-ra.apk`.
+3. **Data Use Checkup** : la première fois, Meta demande de justifier les permissions utilisées
+   (ici la caméra, `horizonos.permission.HEADSET_CAMERA`) avant de rendre l'app disponible — ça
+   peut prendre un peu de temps, pas juste un clic. Si l'app refuse de s'installer ou de démarrer
+   correctement la première fois, c'est le premier endroit à vérifier.
+4. Assigner l'app au casque de test (ou à son groupe) dans **Device Manager**.
+5. Sur le casque : l'app apparaît dans sa bibliothèque une fois poussée (peut prendre quelques
+   minutes), la lancer manuellement.
+6. Viser un QR imprimé, lire les logs directement dans le casque grâce au panneau de l'étape 10.5
+   (`[GMP] Authentifié...`, `[GMP] QR détecté...`, `[GMP] Manifest chargé...`).
+
+Si un écran ne correspond pas à ce que je décris ici, c'est le passage le moins fiable de ce guide
+— décris-moi ce que tu vois, je corrige.
 
 ---
 

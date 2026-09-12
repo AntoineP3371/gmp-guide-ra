@@ -21,6 +21,15 @@ git add apps/headset && git commit -m "..." && git push   # avant de fermer la s
 Si le VDI repart de zéro à chaque connexion, seul ce qui a été poussé ici survit — committe
 souvent, pas seulement en fin de fonctionnalité.
 
+## Contrainte de test : ni USB ni mode développeur
+
+Confirmé : le VDI ne transmet pas l'USB au casque, et les casques (gérés en MDM) n'ont pas de
+mode développeur accessible. Donc pas de « Build & Run », pas de `adb logcat`. À la place :
+build de l'APK dans le VDI → sorti du VDI (transfert du client VDI si dispo, sinon via le Pi en
+`scp`) → poussé au casque par le réseau via **Meta Device Manager**. Pour voir ce qui se passe
+sans câble, `OnScreenLogger.cs` affiche les derniers logs directement dans la vue casque. Détail
+dans `docs/SETUP.md` étapes 10.5 et 11.
+
 ## Ce dossier n'est PAS un projet Unity complet
 
 Il ne contient que ce qui se transporte proprement en texte : scripts C#, et cette doc. Les
@@ -40,6 +49,8 @@ racine du projet Unity une fois `ProjectSettings/`/`Packages/` en place — au c
       compilation (`MRUKRoom.TrackableAdded` n'existe pas ; le bon abonnement est
       `MRUK.Instance.SceneSettings.TrackableAdded.AddListener(...)`) — compile désormais, encore
       **jamais testé sur casque réel**
+- [x] Panneau de logs dans le casque (`OnScreenLogger.cs`) — remplace `adb logcat`, indisponible
+      ici (voir contrainte ci-dessus) ; **jamais testé sur casque réel**
 - [ ] Instanciation des objets (vidéo/PDF/image/modèle/callout/texte/hotspot)
 - [ ] Lecteur de scénario (étapes, transitions, déclencheurs)
 - [ ] Spatial Anchor persistante
