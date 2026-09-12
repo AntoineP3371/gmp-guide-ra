@@ -37,8 +37,13 @@
 - [x] **Déploiement GitHub Pages** : workflow CI en place et vert, app en ligne sur
       `gmpbordeaux.fr/gmp-guide-ra/` (domaine personnalisé dédié `prepa.` pas encore fait,
       page de projet suffit pour l'instant)
-- [ ] **Cloudflare Tunnel** sur le Pi : `api.tondomaine.fr`, DNS du domaine OVH basculé chez
-      Cloudflare (geste manuel, une fois)
+- [x] **Backend en production sur le Pi** : instance PocketBase dédiée (`~/gmp-guide-ra/`,
+      service systemd `gmp-guide-ra.service`), séparée de l'ancienne instance partagée
+      (réservation-machines, archivée puis supprimée à la demande)
+- [x] **Cloudflare Tunnel** : DNS OVH basculé chez Cloudflare, tunnel `cloudflared.service` sur
+      le Pi, `api.gmpbordeaux.fr` → `localhost:8090` — vérifié accessible depuis l'extérieur
+- [x] `PB_URL` GitHub Actions réglé sur `https://api.gmpbordeaux.fr` — l'app publiée sur GitHub
+      Pages parle maintenant au vrai backend
 
 ## Phase 2 — App casque (walking skeleton)
 

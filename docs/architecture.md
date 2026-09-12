@@ -24,7 +24,7 @@
   [`schemas/manifest.schema.json`](../schemas/manifest.schema.json). Voir
   [`manifest-contract.md`](manifest-contract.md) pour le repère `F_qr`, la conversion Unity et
   le modèle de **scénario** (étapes, chronologie, séquencement).
-- **QR = identifiant + fiducial.** Le payload encode une URL courte (`tondomaine.fr/m/XXXXXX`) ;
+- **QR = identifiant + fiducial.** Le payload encode une URL courte (`gmpbordeaux.fr/m/XXXXXX`) ;
   l'ID sert à charger le manifest, la géométrie du QR (taille physique connue) sert à poser
   l'ancre. Après le 1ᵉʳ scan, la Spatial Anchor persiste : le QR n'est plus nécessaire à chaque
   session.
@@ -40,8 +40,8 @@
 | Brique | Choix | Pourquoi |
 |---|---|---|
 | Backend | PocketBase (Go + SQLite), sur le Raspberry Pi 4 (2 Go) de l'auteur | 1 binaire auto-hébergeable, auth + fichiers + REST + réel-temps, hooks JS. SQLite suffit à l'échelle atelier. |
-| Exposition du backend | **Cloudflare Tunnel** (DNS du domaine OVH basculé chez Cloudflare) | URL HTTPS stable `api.tondomaine.fr`, rien d'entrant sur le réseau domicile, pas de matériel sur le réseau universitaire → la DSI n'a rien à autoriser. Cache Cloudflare en bonus pour les médias. |
-| App de préparation | Svelte + Vite + TS, **hébergée sur GitHub Pages** (domaine personnalisé `prepa.tondomaine.fr`) | Accessible de partout, gratuite, versionnée avec le repo. |
+| Exposition du backend | **Cloudflare Tunnel** (DNS du domaine OVH basculé chez Cloudflare) | URL HTTPS stable `api.gmpbordeaux.fr`, rien d'entrant sur le réseau domicile, pas de matériel sur le réseau universitaire → la DSI n'a rien à autoriser. Cache Cloudflare en bonus pour les médias. |
+| App de préparation | Svelte + Vite + TS, **hébergée sur GitHub Pages** (`gmpbordeaux.fr/gmp-guide-ra/` — page de projet ; sous-domaine dédié `prepa.` pas encore fait) | Accessible de partout, gratuite, versionnée avec le repo. |
 | Viewer contrat | three.js (`apps/viewer-web`) | même repère main droite que le manifest → rend sans conversion, valide le contrat sans casque. |
 | App casque | **Unity + Meta XR SDK** (Core + MR Utility Kit), app privée poussée par **Meta Device Manager** | Seul chemin viable pour l'AR ancrée sur QR : Wolvic (navigateur imposé par le MDM, Quest Browser désactivé) n'expose pas la caméra en WebXR. |
 
@@ -75,21 +75,24 @@ l'upload :
 | Débit d'envoi du domicile (upload) | Vidéos courtes, qualité raisonnable ; le cache Cloudflare limite les téléchargements répétés depuis le Pi. |
 | RAM (~30–60 Mo PocketBase au repos) | OK ; surveiller les uploads concurrents. |
 
-## Déploiement cible
+## Déploiement cible — **en service depuis le 12/09/2026**
 
-- **Backend : Raspberry Pi 4 (2 Go), au domicile de l'auteur.**
-  - Binaire `pocketbase_*_linux_arm64` ; `pb_data` sur support USB dédié.
-  - Exposé via **Cloudflare Tunnel** sous `api.tondomaine.fr` (domaine déposé chez OVH, DNS
-    basculé chez Cloudflare — voir ci-dessous). Aucune ouverture de port sur la box, aucun
-    matériel sur un réseau universitaire.
+- **Backend : Raspberry Pi 4, au domicile de l'auteur.** `~/gmp-guide-ra/` (binaire, `pb_data`,
+  migrations, hooks), service **systemd** `gmp-guide-ra.service` (`--http=0.0.0.0:8090`,
+  redémarre seul sur crash/reboot). RAM réelle de ce Pi : ~900 Mo (plus contraint que les 2 Go
+  supposés au départ — à garder en tête pour les uploads concurrents).
+  - Exposé via **Cloudflare Tunnel** (`cloudflared.service`, mode connecteur à jeton — la route
+    est configurée côté tableau de bord Cloudflare, pas de `config.yml` local) sous
+    **`api.gmpbordeaux.fr`**. Aucune ouverture de port sur la box, aucun matériel sur un réseau
+    universitaire.
   - Le Pi n'a pas besoin d'être joignable en continu : seulement au moment de la **publication**
     d'un contenu et du **chargement** initial d'un casque (ensuite, cache hors-ligne).
-- **App de préparation : GitHub Pages**, domaine personnalisé `prepa.tondomaine.fr`. Build
-  déclenché par une GitHub Action à chaque push (`.github/workflows/deploy-web.yml`), variable
-  de dépôt `PB_URL = https://api.tondomaine.fr` injectée au build.
+- **App de préparation : GitHub Pages**, `gmpbordeaux.fr/gmp-guide-ra/`. Build déclenché par une
+  GitHub Action à chaque push (`.github/workflows/deploy-web.yml`), variable de dépôt
+  `PB_URL = https://api.gmpbordeaux.fr` injectée au build.
 - **Domaine : OVH (registrar) + Cloudflare (DNS)**. Le domaine reste enregistré/payé chez OVH ;
-  seuls les serveurs de noms pointent vers Cloudflare, ce qui permet le Tunnel + le cache + la
-  gestion des sous-domaines (`api.`, `prepa.`) au même endroit.
+  les serveurs de noms pointent vers Cloudflare (`alec`/`peaches.ns.cloudflare.com`), ce qui
+  permet le Tunnel + le cache + la gestion des sous-domaines au même endroit.
 - **App casque : APK signé** (keystore dédié, `versionCode` croissant) → **app privée Meta
   Device Manager** → groupes de casques. Permission `horizonos.permission.HEADSET_CAMERA`, Data
   Use Checkup validé. Doit fonctionner **hors-ligne** une fois le contenu d'une machine mis en

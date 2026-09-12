@@ -1,10 +1,10 @@
 Tout fichier posé ici est copié tel quel à la racine du build (`dist/`), donc du site publié.
 
-**Domaine personnalisé GitHub Pages** : pour servir l'app sur `prepa.tondomaine.fr`, créer un
+**Domaine personnalisé GitHub Pages** : pour servir l'app sur `prepa.gmpbordeaux.fr`, créer un
 fichier `CNAME` (sans extension) dans ce dossier, contenant une seule ligne :
 
 ```
-prepa.tondomaine.fr
+prepa.gmpbordeaux.fr
 ```
 
 Puis, chez Cloudflare (DNS du domaine) : un enregistrement `CNAME prepa -> <user>.github.io`
