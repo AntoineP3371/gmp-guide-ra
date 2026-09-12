@@ -1,5 +1,5 @@
 // Test de bout en bout jetable — pas dans le repo final, usage ponctuel de dev.
-const B = "http://127.0.0.1:8090";
+const B = process.env.PB_BASE || "http://127.0.0.1:8090";
 
 async function j(method, path, token, body) {
   const res = await fetch(B + path, {
