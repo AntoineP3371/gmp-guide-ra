@@ -177,16 +177,21 @@ vérifier.)
 
 ## Étape 10 — Brancher le script de test à une scène
 
-1. Panneau **Hierarchy** (en général en haut à gauche) → clic droit dans le vide →
-   **Create Empty**. Renomme-le (double-clic sur le nom) en `ManifestLoader`.
-2. Sélectionne-le. Dans le panneau **Inspector** (à droite), bouton **Add Component** en bas.
-3. Tape `Qr Manifest Loader` dans la recherche, clique dessus pour l'ajouter.
-4. Trois champs apparaissent dans l'Inspector, remplis-les :
+1. **Indispensable, oublié facilement** : dans le panneau **Project**, cherche un prefab nommé
+   **`MRUK`** (fourni par le SDK Meta — barre de recherche du panneau Project, tape `MRUK`).
+   Glisse-le dans le panneau **Hierarchy**. Sans lui, `MRUK.Instance` reste `null` et rien ne se
+   passe jamais (le script logue une erreur explicite dans ce cas, donc si tu la vois dans la
+   Console, c'est ça).
+2. Toujours dans **Hierarchy** → clic droit dans le vide → **Create Empty**. Renomme-le
+   (double-clic sur le nom) en `ManifestLoader`.
+3. Sélectionne-le. Dans le panneau **Inspector** (à droite), bouton **Add Component** en bas.
+4. Tape `Qr Manifest Loader` dans la recherche, clique dessus pour l'ajouter.
+5. Trois champs apparaissent dans l'Inspector, remplis-les :
    - **Backend Base Url** : `https://api.gmpbordeaux.fr`
    - **Viewer Email** : `casque@gmpbordeaux.fr`
    - **Viewer Password** : (celui donné lors de la mise en prod du backend — redemande-le moi si
      tu ne l'as plus sous la main, je ne le remets pas ici en clair)
-5. **Ctrl+S** (ou File → Save) pour sauvegarder la scène.
+6. **Ctrl+S** (ou File → Save) pour sauvegarder la scène.
 
 ## Étape 11 — Build & Run sur le casque
 

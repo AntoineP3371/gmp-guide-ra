@@ -1,21 +1,18 @@
-// ⚠️ ÉBAUCHE NON VÉRIFIÉE — écrite à partir de la documentation Meta MR Utility Kit, jamais
-// compilée ni exécutée (pas d'éditeur Unity disponible côté agent). Avant de lui faire confiance,
-// compare le câblage des événements MRUK avec la scène d'exemple officielle "QRCodeDetection" :
-// https://github.com/oculus-samples/Unity-MRUtilityKitSample
-// Les noms de classes/méthodes MRUK ci-dessous (MRUK.Instance, RegisterSceneLoadedCallback,
-// MRUKRoom.TrackableAdded, MRUKTrackable...) sont ceux documentés ici :
-// https://developers.meta.com/horizon/documentation/unity/unity-mr-utility-kit-qrcode-detection/
-// mais l'API MRUK évolue — si ça ne compile pas, c'est probablement un renommage à ajuster ici,
-// pas une erreur de logique.
+// Câblage MR Utility Kit vérifié contre le code source réel de l'échantillon officiel Meta
+// (QRCodeManager.cs) :
+// https://github.com/oculus-samples/Unity-MRUtilityKitSample/blob/main/Assets/MRUKSamples/QRCodeDetection/Scripts/QRCodeManager.cs
+// L'abonnement se fait sur MRUK.Instance.SceneSettings (PAS sur MRUKRoom — première version de ce
+// fichier avait une erreur ici, corrigée après un vrai retour de compilation).
 //
-// Rôle de ce script (walking skeleton, Phase 2 du chantier — voir docs/roadmap.md racine) :
-// détecter un QR, en tirer le code machine, charger son manifest, logger le résultat.
-// PAS ENCORE FAIT ici : instanciation des objets, pose de la Spatial Anchor, scénario.
+// Rôle de ce script (walking skeleton, Phase 2 — voir docs/roadmap.md racine) : demander la
+// permission caméra, détecter un QR, en tirer le code machine, charger son manifest, logger le
+// résultat. PAS ENCORE FAIT ici : instanciation des objets, pose de la Spatial Anchor, scénario.
 
 using System;
 using GmpGuideRA.Manifest;
-using Meta.XR.MRUtilityKit; // ajuster si le namespace réel diffère
+using Meta.XR.MRUtilityKit;
 using UnityEngine;
+using UnityEngine.Android;
 
 public class QrManifestLoader : MonoBehaviour
 {
@@ -27,10 +24,28 @@ public class QrManifestLoader : MonoBehaviour
     public string viewerEmail;
     public string viewerPassword;
 
-    private async void Start()
+    private void Start()
+    {
+        RequestScenePermissionIfNeeded();
+        _ = LoginAsync(); // fire-and-forget : Start() ne peut pas être async lui-même
+
+        if (!MRUK.Instance)
+        {
+            Debug.LogError("[GMP] Aucun objet MRUK dans la scène — ajoute le prefab MRUK fourni par le SDK.");
+            return;
+        }
+        MRUK.Instance.SceneSettings.TrackableAdded.AddListener(OnTrackableAdded);
+    }
+
+    private void OnDestroy()
+    {
+        if (MRUK.Instance)
+            MRUK.Instance.SceneSettings.TrackableAdded.RemoveListener(OnTrackableAdded);
+    }
+
+    private async System.Threading.Tasks.Task LoginAsync()
     {
         ManifestClient.BaseUrl = backendBaseUrl;
-
         try
         {
             ManifestClient.AuthToken = await AuthClient.LoginAsync(backendBaseUrl, viewerEmail, viewerPassword);
@@ -39,19 +54,22 @@ public class QrManifestLoader : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"[GMP] Échec authentification backend : {e.Message}");
-            return;
         }
-
-        // MRUK : s'abonner à la détection de trackables une fois la scène MR chargée.
-        MRUK.Instance.RegisterSceneLoadedCallback(OnMrSceneLoaded);
     }
 
-    private void OnMrSceneLoaded()
+    // La détection de QR fait partie de l'API Scene/spatial data de Meta, qui demande une
+    // permission Android à l'exécution (en plus de la déclaration dans AndroidManifest.xml —
+    // voir docs/SETUP.md étape 8). Version simple ici : on demande, sans réagir finement au
+    // callback d'octroi — si refusée, MRUK ne déclenchera simplement jamais TrackableAdded pour
+    // des QR (redémarrer l'app après avoir accepté suffit en pratique).
+    private void RequestScenePermissionIfNeeded()
     {
-        foreach (var room in MRUK.Instance.Rooms)
+#if !UNITY_EDITOR
+        if (!Permission.HasUserAuthorizedPermission(OVRPermissionsRequester.ScenePermission))
         {
-            room.TrackableAdded.AddListener(OnTrackableAdded);
+            Permission.RequestUserPermission(OVRPermissionsRequester.ScenePermission);
         }
+#endif
     }
 
     private async void OnTrackableAdded(MRUKTrackable trackable)
@@ -71,7 +89,7 @@ public class QrManifestLoader : MonoBehaviour
                 $"{manifest.Objects.Count} objet(s), scénario={manifest.Scenario?.Mode ?? "freeform"}");
 
             // TODO (prochaine étape du chantier) :
-            //  1. Poser une Spatial Anchor à la pose de `trackable` (persiste après ce scan).
+            //  1. Poser une Spatial Anchor à la pose de `trackable.transform` (persiste après ce scan).
             //  2. Instancier manifest.Objects à leur placement (FrameConversion.ToUnityPosition/Rotation),
             //     relatif à cette ancre.
             //  3. Si manifest.Scenario?.Mode == "guided", piloter la visibilité par étape au lieu de

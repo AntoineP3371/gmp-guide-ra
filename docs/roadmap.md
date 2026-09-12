@@ -61,9 +61,10 @@ du dépôt est la source de vérité entre les sessions VDI (voir `apps/headset/
 - [x] Modèles C# du manifest + client HTTP + auth PocketBase (`apps/headset/Assets/Scripts/Manifest/`)
 - [x] Conversion repère main droite (manifest) → main gauche (Unity) — `FrameConversion.cs`,
       voir aussi `docs/manifest-contract.md`
-- [ ] Scan QR (MRUK) → création Spatial Anchor à la pose du QR — ébauche fournie
-      (`QrManifestLoader.cs`), **non compilée/vérifiée**, à recaler sur l'échantillon officiel
-      MRUK une fois dans l'éditeur
+- [x] Scan QR (MRUK) → chargement du manifest correspondant — `QrManifestLoader.cs` compile
+      (corrigé après un vrai retour d'erreur : abonnement sur `MRUK.Instance.SceneSettings`, pas
+      sur `MRUKRoom`), reste à tester sur casque réel puis à ajouter la Spatial Anchor
+      persistante (pas encore fait)
 - [ ] Instanciation des objets aux offsets du manifest (vidéo/PDF/image/modèle/callout/texte/hotspot)
 - [ ] **Lecteur de scénario** : exécute les étapes `guided` (transitions, déclencheurs
       tap/timer/media_end) — logique de référence déjà écrite et vérifiée côté web

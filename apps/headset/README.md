@@ -35,9 +35,11 @@ racine du projet Unity une fois `ProjectSettings/`/`Packages/` en place — au c
 - [x] Modèles C# du manifest (`Assets/Scripts/Manifest/ManifestModels.cs`)
 - [x] Client HTTP + auth (`ManifestClient.cs`, `AuthClient.cs`)
 - [x] Conversion de repère main droite (manifest) → main gauche (Unity) (`FrameConversion.cs`)
-- [ ] Détection QR (MR Utility Kit) — ébauche fournie (`QrManifestLoader.cs`), **à vérifier contre
-      l'échantillon officiel** avant de faire confiance à l'API exacte (voir avertissement dans
-      le fichier)
+- [x] Détection QR (MR Utility Kit) — `QrManifestLoader.cs` recalé sur le code source réel de
+      l'échantillon officiel Meta (`QRCodeManager.cs`) après un premier essai raté à la
+      compilation (`MRUKRoom.TrackableAdded` n'existe pas ; le bon abonnement est
+      `MRUK.Instance.SceneSettings.TrackableAdded.AddListener(...)`) — compile désormais, encore
+      **jamais testé sur casque réel**
 - [ ] Instanciation des objets (vidéo/PDF/image/modèle/callout/texte/hotspot)
 - [ ] Lecteur de scénario (étapes, transitions, déclencheurs)
 - [ ] Spatial Anchor persistante
