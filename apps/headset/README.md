@@ -41,20 +41,30 @@ racine du projet Unity une fois `ProjectSettings/`/`Packages/` en place — au c
 
 ## Statut
 
+**En reprise de session ? Lis d'abord [`docs/REPRISE.md`](docs/REPRISE.md)** — état exact au moment
+de la pause et prochaine étape immédiate.
+
 - [x] Modèles C# du manifest (`Assets/Scripts/Manifest/ManifestModels.cs`)
 - [x] Client HTTP + auth (`ManifestClient.cs`, `AuthClient.cs`)
 - [x] Conversion de repère main droite (manifest) → main gauche (Unity) (`FrameConversion.cs`)
 - [x] Détection QR (MR Utility Kit) — `QrManifestLoader.cs` recalé sur le code source réel de
       l'échantillon officiel Meta (`QRCodeManager.cs`) après un premier essai raté à la
       compilation (`MRUKRoom.TrackableAdded` n'existe pas ; le bon abonnement est
-      `MRUK.Instance.SceneSettings.TrackableAdded.AddListener(...)`) — compile désormais, encore
-      **jamais testé sur casque réel**
+      `MRUK.Instance.SceneSettings.TrackableAdded.AddListener(...)`) — **premier test sur casque
+      réel effectué** : permission accordée, MRUK découvre bien la pièce (scene anchors, room
+      anchor), mais la détection du QR lui-même pas encore confirmée (logs noyés par le bruit
+      SDK au moment du test, filtre corrigé depuis — à revérifier au prochain test, voir
+      `docs/REPRISE.md`)
 - [x] Panneau de logs dans le casque (`OnScreenLogger.cs`) — remplace `adb logcat`, indisponible
-      ici (voir contrainte ci-dessus) ; **jamais testé sur casque réel**
+      ici (voir contrainte ci-dessus) ; **testé sur casque réel**, filtré deux fois pour éliminer
+      le bruit de diagnostic interne du SDK Meta (`[MetaXRFeature]`, `MRUK Shared:`, loggés en
+      Warning) qui noyait nos propres messages `[GMP]`
 - [ ] Instanciation des objets (vidéo/PDF/image/modèle/callout/texte/hotspot)
 - [ ] Lecteur de scénario (étapes, transitions, déclencheurs)
 - [ ] Spatial Anchor persistante
 - [ ] Cache hors-ligne
-- [ ] Build signé + app privée Meta Device Manager
+- [x] Build signé + app privée Meta Device Manager — cycle de déploiement fonctionnel (voir
+      `docs/SETUP.md` étape 11 ou le résumé dans `docs/REPRISE.md`), malgré un avertissement de
+      compatibilité Mode partagé non bloquant à surveiller (détail dans `docs/REPRISE.md`)
 
 Voir `docs/roadmap.md` (racine du repo) § Phase 2 pour le détail.
