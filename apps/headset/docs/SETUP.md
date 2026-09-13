@@ -179,24 +179,34 @@ vérifier.)
 
 ## Étape 10 — Nettoyer la scène par défaut et brancher le script de test
 
-Le template **3D (Core)** choisi à l'étape 3 crée une scène avec une caméra de bureau classique —
-fixe, elle ne suit jamais les mouvements de tête. Il faut la remplacer par le rig caméra du casque
-avant de pouvoir tester quoi que ce soit.
+Selon le template choisi à l'étape 3 (ou selon ce qui était déjà préparé dans le VDI), la scène de
+départ n'est pas forcément vide — deux cas possibles :
 
-1. Dans **Hierarchy**, sélectionne l'objet **Main Camera** (celui présent depuis la création du
-   projet). Clic droit → **Delete**. (La **Directional Light** à côté peut rester, elle ne pose
-   pas ce problème.)
+**Cas A — scène vide type « 3D (Core) »** : une **Main Camera** de bureau classique, fixe, qui ne
+suivra jamais les mouvements de tête.
+1. Dans **Hierarchy**, sélectionne **Main Camera** → clic droit → **Delete**. (La **Directional
+   Light** à côté peut rester.)
 2. **Ajouter le rig caméra du casque** — ⚠️ incertain (le nom exact dépend de la version du SDK
    Meta importée à l'étape 5c) :
    - Dans le panneau **Project**, barre de recherche → tape `OVRCameraRig`. S'il apparaît, glisse
      le prefab dans **Hierarchy**.
    - S'il n'existe pas sous ce nom, cherche un menu **Meta → Tools → Building Blocks** (parfois
-     **GameObject → Meta XR → Camera Rig**) : outil plus récent du SDK pour ajouter le même genre
-     d'objet par glisser-déposer depuis une fenêtre dédiée — cherche un bloc appelé **Camera Rig**
-     ou **Camera** dedans.
-   - Une fois en place, c'est cet objet qui pilote la caméra en fonction de la position réelle de
-     la tête — sa caméra centrale porte normalement déjà le tag **MainCamera** par défaut (utile
-     pour `OnScreenLogger.cs`, voir étape 10.5). Pas besoin d'une Main Camera séparée.
+     **GameObject → Meta XR → Camera Rig**), ou directement un objet **`XR Origin (XR Rig)`** /
+     **`XR Origin Hands (XR Rig)`** — c'est le nom plus récent du même genre de rig (voir Cas B).
+
+**Cas B — scène déjà fournie avec un exemple Meta** (rig + objets de démo d'interaction — cube,
+totems, panneaux UI, zone de téléportation…) : c'est souvent le cas si le VDI vient avec un projet
+pré-configuré.
+1. **Garde** l'objet **`XR Origin Hands (XR Rig)`** (ou `XR Origin (XR Rig)`, `OVRCameraRig`) —
+   c'est le rig caméra du casque, exactement ce que le Cas A demande d'ajouter. Ne le supprime pas,
+   n'en ajoute pas un second.
+2. **Supprime tout le reste** qui ne sert à rien pour notre app — repère les groupes du genre
+   `Interactables` (cube/cylindre/tore/totems/blaster…), `UI` (panneaux, tutoriel), `Environment`
+   (sol/mur de démo), `Teleport Area Setup` : sélectionne-les (Shift+clic pour tout prendre d'un
+   coup) → **Delete**. La **Lighting** (Directional Light, Post Process Volume) peut rester.
+
+Dans les deux cas, une fois la scène nettoyée et le rig caméra en place :
+
 3. **Indispensable, oublié facilement** : dans le panneau **Project**, cherche un prefab nommé
    **`MRUK`** (fourni par le SDK Meta — barre de recherche du panneau Project, tape `MRUK`).
    Glisse-le dans le panneau **Hierarchy**. Sans lui, `MRUK.Instance` reste `null` et rien ne se
