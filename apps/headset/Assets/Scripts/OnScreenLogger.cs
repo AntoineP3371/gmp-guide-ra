@@ -48,6 +48,14 @@ public class OnScreenLogger : MonoBehaviour
 
     private void HandleLog(string condition, string stackTrace, LogType type)
     {
+        // Le SDK Meta (OpenXR) logue en continu son propre diagnostic interne
+        // (ex. "[MetaXRFeature] OnSessionStateChange: ...") — sans filtre, ce bruit noie
+        // les messages [GMP] qui nous intéressent. On garde : nos propres logs, et toute
+        // vraie erreur/avertissement (utile même hors du namespace [GMP]).
+        bool isOurs = condition.Contains("[GMP]");
+        bool isProblem = type == LogType.Error || type == LogType.Exception || type == LogType.Warning;
+        if (!isOurs && !isProblem) return;
+
         string tag = type == LogType.Error || type == LogType.Exception ? "[ERR] "
             : type == LogType.Warning ? "[WARN] "
             : "";
