@@ -117,6 +117,22 @@ Cette fenêtre liste des réglages à corriger avec un bouton **Fix All** (ou de
 un par un). **Clique Fix All puis Apply** — c'est plus fiable que de régler ça à la main, il
 configure OpenXR/Android/les Player Settings tout seul.
 
+### 5e. Si la Console affiche des erreurs rouges sur « Meta XR Simulator »
+
+Le SDK Meta importe parfois automatiquement le package **Meta XR Simulator** — il sert à tester en
+Play Mode dans l'éditeur *sans* casque réel, via un composant natif installé hors Unity (nécessite
+les droits admin). On ne s'en sert pas ici (on teste toujours sur un vrai casque via Meta Device
+Manager) et ce n'est pas une dépendance obligatoire de MR Utility Kit — si tu n'as pas les droits
+admin sur le VDI pour l'installateur natif, **retire le package** plutôt que d'essayer de
+l'installer :
+1. `Window → Package Manager` → menu déroulant en haut à gauche → **In Project**.
+2. Cherche **Meta XR Simulator** (ou **Meta XR Simulator Support**) dans la liste.
+3. Sélectionne-le → **Remove** en bas à droite.
+
+Ça doit faire disparaître les erreurs rouges liées — et donc débloquer `Add Component`, qui reste
+vide pour **tous** les scripts custom (pas juste celui concerné) tant qu'il y a une seule erreur de
+compilation dans le projet.
+
 ## Étape 6 — Vérifier XR Plug-in Management
 
 (Normalement déjà fait par le Project Setup Tool à l'étape 5d — cette étape sert juste à
