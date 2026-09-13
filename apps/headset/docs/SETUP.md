@@ -269,8 +269,25 @@ pour la mise en prod finale (Meta Device Manager) plutôt que par câble.
 
 ### 11b. Sortir l'APK du VDI
 
-Deux façons possibles, prends celle qui marche chez toi :
+Trois façons possibles, prends celle qui marche chez toi.
 
+- **Via une Release GitHub en brouillon** (la plus simple puisque le VDI a déjà accès à GitHub par
+  navigateur — même principe que ce qui avait déjà marché avec Wolvic) :
+  1. ⚠️ **Le dépôt `gmp-guide-ra` est public.** Une Release **publiée** rendrait l'APK
+     téléchargeable par n'importe qui — et l'APK embarque en dur les identifiants du compte
+     `viewer` PocketBase saisis à l'étape 10 (Unity les compile dans les données de la scène,
+     extractibles de l'APK). Donc : **on ne publie jamais**, on reste en brouillon.
+  2. Dans le VDI, navigateur → `github.com/AntoineP3371/gmp-guide-ra/releases/new`.
+  3. Glisse le `.apk` dans la zone d'attachement de binaires en bas du formulaire. Tag/titre
+     quelconques (ex. `test-apk-1`).
+  4. Clique **Save draft** (surtout pas **Publish release**) — un brouillon n'est visible que par
+     les comptes ayant un accès en écriture au dépôt, pas par le public.
+  5. Depuis la machine qui a accès à Meta Device Manager (le VDI si c'est le même poste, sinon un
+     autre), connecte-toi à GitHub avec le même compte, ouvre `Releases` → le brouillon →
+     télécharge l'`.apk` attaché.
+  6. Une fois récupéré (et poussé au casque, étape 11c) : **supprime le brouillon** (Releases → le
+     brouillon → Delete) — ce n'est qu'un point de passage temporaire, pas un endroit pour stocker
+     des builds ni pour laisser traîner des identifiants compilés.
 - **Si ton client VDI a un transfert de fichiers dédié** (souvent distinct du presse-papiers texte
   — Citrix/Horizon/RDP en ont un en général, cherche une icône ou un menu « Transfer files » /
   « Send to local » dans la barre d'outils de la fenêtre VDI) : utilise-le directement sur le
