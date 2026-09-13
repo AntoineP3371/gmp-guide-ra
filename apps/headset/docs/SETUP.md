@@ -267,46 +267,41 @@ pour la mise en prod finale (Meta Device Manager) plutôt que par câble.
 3. Choisis un nom/dossier de sortie, ex. `gmp-guide-ra.apk`. Ça peut prendre plusieurs minutes la
    première fois.
 
-### 11b. Sortir l'APK du VDI
+### 11b. Rendre l'APK accessible par une URL publique
 
 **Contrainte découverte à l'usage : Device Manager ne propose qu'un champ URL, pas un champ
 d'upload direct** — c'est son propre serveur qui va chercher le fichier, pas ton navigateur. Ça
 élimine l'idée d'une Release GitHub en brouillon (son URL n'est accessible qu'après connexion à
 ton compte GitHub ; le serveur de Meta, lui, n'est pas connecté). Il faut une vraie URL publique,
-sans authentification, qui pointe directement sur l'`.apk`.
+sans authentification.
 
-**Méthode recommandée : déposer l'APK dans `pb_public/` sur le Pi.** PocketBase sert automatiquement
-en statique tout fichier placé dans un dossier `pb_public/` à côté de son exécutable — on a déjà ce
-Pi exposé en HTTPS public (`api.gmpbordeaux.fr`), pas besoin d'ouvrir quoi que ce soit de plus.
-⚠️ Comme ce sera public et sans mot de passe (et que l'APK embarque les identifiants du compte
-`viewer` PocketBase saisis à l'étape 10, extractibles du binaire), utilise un **nom de fichier
-aléatoire, difficile à deviner** — pas `gmp-guide-ra.apk` — et supprime-le dès que Device Manager
-l'a récupéré.
+⚠️ Le VDI n'a **pas d'accès réseau local au Pi** (ni SSH, ni LAN) — c'est justement pour ça qu'on
+avait mis en place le tunnel Cloudflare : seul `https://api.gmpbordeaux.fr` (HTTPS public) est
+joignable depuis l'extérieur du réseau domestique, donc depuis le VDI aussi. On utilise PocketBase
+lui-même comme dépôt de fichier, via son interface d'admin dans le navigateur — pas de SSH, pas de
+LAN, juste une page web déjà connue.
 
-1. Une seule fois, créer le dossier sur le Pi (depuis une machine qui a la clé SSH configurée) :
-   ```bash
-   ssh pi@raspberrypi.local "mkdir -p ~/gmp-guide-ra/pb_public"
-   ```
-2. Depuis le VDI, une fois l'APK construit (étape 11a) :
-   ```bash
-   scp gmp-guide-ra.apk pi@raspberrypi.local:~/gmp-guide-ra/pb_public/<nom-aleatoire>.apk
-   ```
-   (mot de passe du compte `pi`, ou la clé si elle est aussi copiée dans le VDI).
-3. L'APK est alors accessible à `https://api.gmpbordeaux.fr/<nom-aleatoire>.apk` — c'est cette URL
-   qu'on donne à Device Manager (étape 11c).
-   - Si ça renvoie une 404 au lieu de servir le fichier, redémarrer le service PocketBase pour
-     qu'il prenne en compte le nouveau dossier : `sudo systemctl restart gmp-guide-ra.service`.
-4. **Une fois l'app installée sur le casque**, supprimer le fichier sans attendre :
-   ```bash
-   ssh pi@raspberrypi.local "rm ~/gmp-guide-ra/pb_public/<nom-aleatoire>.apk"
-   ```
+**À faire une seule fois** (pas à refaire à chaque build) :
+1. Va sur `https://api.gmpbordeaux.fr/_/` (admin PocketBase), connecte-toi.
+2. Crée une nouvelle collection **Base** nommée `temp_builds`.
+3. Ajoute un champ **File** nommé `apk`. Augmente sa **taille max** (par défaut souvent 5 Mo —
+   bien trop petit pour un APK Unity ; monte-la à 500 Mo par exemple).
+4. Dans les **règles API** de la collection : laisse **List** et **View** **vides** (= lecture
+   publique, sans authentification — nécessaire pour que Device Manager puisse le récupérer).
+   Laisse Create/Update/Delete tels quels (admin uniquement) — connecté en admin sur le dashboard,
+   tu peux toujours tout faire ; seul l'accès anonyme extérieur est gouverné par List/View.
 
-**Solutions de repli** si le Pi n'est pas joignable au moment voulu :
-- **Transfert de fichiers du client VDI**, s'il en a un (souvent distinct du presse-papiers texte —
-  Citrix/Horizon/RDP en ont un en général, cherche une icône ou un menu « Transfer files » / « Send
-  to local » dans la barre d'outils de la fenêtre VDI) : ça sort l'APK du VDI, mais il faudra
-  ensuite quand même le rendre joignable par une URL publique (donc probablement le déposer sur le
-  Pi de toute façon, cf. méthode recommandée, juste depuis une autre machine que le VDI).
+**À chaque build**, depuis le VDI (même navigateur, même page `api.gmpbordeaux.fr/_/`, accessible
+partout où il y a Internet) :
+1. Dans `temp_builds` → **+ New record** → uploade le `.apk` construit à l'étape 11a via le
+   sélecteur de fichier du navigateur → **Save**.
+2. Récupère l'URL publique du fichier (affichée au clic sur le champ, ou reconstruite :
+   `https://api.gmpbordeaux.fr/api/files/temp_builds/<id-enregistrement>/<nom-fichier>`).
+3. Donne cette URL à Device Manager (étape 11c).
+4. **Une fois l'app installée sur le casque**, supprime l'enregistrement dans `temp_builds` via
+   l'admin — referme l'accès public à ce fichier, qui embarque les identifiants du compte `viewer`
+   PocketBase saisis à l'étape 10 (Unity les compile dans les données de la scène, extractibles de
+   l'APK).
 
 ### 11c. Pousser l'app au casque via Meta Device Manager — ⚠️ incertain
 
