@@ -270,38 +270,46 @@ pour la mise en prod finale (Meta Device Manager) plutôt que par câble.
 ### 11b. Rendre l'APK accessible par une URL publique
 
 **Contrainte découverte à l'usage : Device Manager ne propose qu'un champ URL, pas un champ
-d'upload direct** — c'est son propre serveur qui va chercher le fichier, pas ton navigateur. Ça
-élimine l'idée d'une Release GitHub en brouillon (son URL n'est accessible qu'après connexion à
-ton compte GitHub ; le serveur de Meta, lui, n'est pas connecté). Il faut une vraie URL publique,
-sans authentification.
+d'upload direct** — c'est son propre serveur qui va chercher le fichier, pas ton navigateur. Il
+faut donc une vraie URL publique, sans authentification, qui pointe directement sur l'`.apk`.
 
-⚠️ Le VDI n'a **pas d'accès réseau local au Pi** (ni SSH, ni LAN) — c'est justement pour ça qu'on
-avait mis en place le tunnel Cloudflare : seul `https://api.gmpbordeaux.fr` (HTTPS public) est
-joignable depuis l'extérieur du réseau domestique, donc depuis le VDI aussi. On utilise PocketBase
-lui-même comme dépôt de fichier, via son interface d'admin dans le navigateur — pas de SSH, pas de
-LAN, juste une page web déjà connue.
+**Contrainte de taille, elle aussi confirmée à l'usage** : un rapport de build (Console → dernier
+message *Build Report* après un build, ou `Editor.log` si absent de la Console) a montré que
+les assets propres au projet ne pèsent que ~60 Mo — le reste (APK final ~105 Mo) vient des
+bibliothèques natives du SDK Meta XR / MR Utility Kit (scene understanding, hand tracking,
+passthrough…), qui pèsent lourd même dans une app minimale. **C'est un plancher quasi
+incompressible** : quasiment toute app Meta XR/MRUK, même vide de contenu, pèse 80-150 Mo une fois
+compilée. Ne perds pas de temps à essayer de descendre sous ce poids par des réglages de build.
 
-**À faire une seule fois** (pas à refaire à chaque build) :
-1. Va sur `https://api.gmpbordeaux.fr/_/` (admin PocketBase), connecte-toi.
-2. Crée une nouvelle collection **Base** nommée `temp_builds`.
-3. Ajoute un champ **File** nommé `apk`. Augmente sa **taille max** (par défaut souvent 5 Mo —
-   bien trop petit pour un APK Unity ; monte-la à 500 Mo par exemple).
-4. Dans les **règles API** de la collection : laisse **List** et **View** **vides** (= lecture
-   publique, sans authentification — nécessaire pour que Device Manager puisse le récupérer).
-   Laisse Create/Update/Delete tels quels (admin uniquement) — connecté en admin sur le dashboard,
-   tu peux toujours tout faire ; seul l'accès anonyme extérieur est gouverné par List/View.
+Or ce poids dépasse la limite de 100 Mo par requête que Cloudflare impose sur le tunnel qui expose
+le Pi (plan gratuit) — donc **héberger l'APK via PocketBase/le Pi ne fonctionnera pas** pour ce
+projet. On utilise **GitHub Releases** à la place (limite de 2 Go par fichier, largement
+suffisant) :
 
-**À chaque build**, depuis le VDI (même navigateur, même page `api.gmpbordeaux.fr/_/`, accessible
-partout où il y a Internet) :
-1. Dans `temp_builds` → **+ New record** → uploade le `.apk` construit à l'étape 11a via le
-   sélecteur de fichier du navigateur → **Save**.
-2. Récupère l'URL publique du fichier (affichée au clic sur le champ, ou reconstruite :
-   `https://api.gmpbordeaux.fr/api/files/temp_builds/<id-enregistrement>/<nom-fichier>`).
-3. Donne cette URL à Device Manager (étape 11c).
-4. **Une fois l'app installée sur le casque**, supprime l'enregistrement dans `temp_builds` via
-   l'admin — referme l'accès public à ce fichier, qui embarque les identifiants du compte `viewer`
-   PocketBase saisis à l'étape 10 (Unity les compile dans les données de la scène, extractibles de
-   l'APK).
+⚠️ Le dépôt `gmp-guide-ra` est public, et l'APK embarque en dur les identifiants du compte
+`viewer` PocketBase saisis à l'étape 10 (Unity les compile dans les données de la scène,
+extractibles du binaire). Contrairement à une Release GitHub en brouillon (inaccessible sans
+connexion, donc inutilisable ici puisque Device Manager doit la récupérer lui-même sans
+authentification), il faut cette fois **publier réellement** la Release le temps du transfert, puis
+refermer l'exposition immédiatement après :
+
+**À chaque build**, depuis le VDI :
+1. `github.com/AntoineP3371/gmp-guide-ra/releases/new`, glisse l'`.apk` construit à l'étape 11a
+   dans la zone d'attachement de binaires. Tag/titre quelconques (ex. `test-apk-1`).
+2. Cette fois, clique **Publish release** (pas Save draft) — Device Manager doit pouvoir
+   télécharger le fichier sans être connecté à GitHub.
+3. Une fois publiée, clic droit sur le lien de téléchargement de l'`.apk` dans la page de la
+   release → **Copier l'adresse du lien** — c'est cette URL qu'on donne à Device Manager (étape
+   11c).
+4. **Dès que l'app est installée sur le casque** :
+   - Supprime la release (`Releases` → la release → **Delete**) pour refermer l'accès public au
+     fichier.
+   - **Change le mot de passe du compte `viewer@gmp.local`** dans l'admin PocketBase
+     (`https://api.gmpbordeaux.fr/_/` → collection `users` → `viewer@gmp.local` → Edit → nouveau
+     mot de passe) — pour invalider les identifiants qui ont transité en clair dans un binaire
+     public pendant la fenêtre d'exposition. Uniquement via le navigateur, pas besoin de SSH.
+   - Remets à jour le champ **Viewer Password** dans l'Inspector Unity (étape 10) avec le nouveau
+     mot de passe avant le prochain build, sinon l'app ne pourra plus s'authentifier.
 
 ### 11c. Pousser l'app au casque via Meta Device Manager — ⚠️ incertain
 
