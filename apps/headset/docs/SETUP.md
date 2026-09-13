@@ -177,23 +177,41 @@ vérifier.)
    rouge, c'est très probablement dans `QrManifestLoader.cs` (le fichier explicitement marqué
    non-vérifié) — copie-moi le message d'erreur exact, je corrige.
 
-## Étape 10 — Brancher le script de test à une scène
+## Étape 10 — Nettoyer la scène par défaut et brancher le script de test
 
-1. **Indispensable, oublié facilement** : dans le panneau **Project**, cherche un prefab nommé
+Le template **3D (Core)** choisi à l'étape 3 crée une scène avec une caméra de bureau classique —
+fixe, elle ne suit jamais les mouvements de tête. Il faut la remplacer par le rig caméra du casque
+avant de pouvoir tester quoi que ce soit.
+
+1. Dans **Hierarchy**, sélectionne l'objet **Main Camera** (celui présent depuis la création du
+   projet). Clic droit → **Delete**. (La **Directional Light** à côté peut rester, elle ne pose
+   pas ce problème.)
+2. **Ajouter le rig caméra du casque** — ⚠️ incertain (le nom exact dépend de la version du SDK
+   Meta importée à l'étape 5c) :
+   - Dans le panneau **Project**, barre de recherche → tape `OVRCameraRig`. S'il apparaît, glisse
+     le prefab dans **Hierarchy**.
+   - S'il n'existe pas sous ce nom, cherche un menu **Meta → Tools → Building Blocks** (parfois
+     **GameObject → Meta XR → Camera Rig**) : outil plus récent du SDK pour ajouter le même genre
+     d'objet par glisser-déposer depuis une fenêtre dédiée — cherche un bloc appelé **Camera Rig**
+     ou **Camera** dedans.
+   - Une fois en place, c'est cet objet qui pilote la caméra en fonction de la position réelle de
+     la tête — sa caméra centrale porte normalement déjà le tag **MainCamera** par défaut (utile
+     pour `OnScreenLogger.cs`, voir étape 10.5). Pas besoin d'une Main Camera séparée.
+3. **Indispensable, oublié facilement** : dans le panneau **Project**, cherche un prefab nommé
    **`MRUK`** (fourni par le SDK Meta — barre de recherche du panneau Project, tape `MRUK`).
    Glisse-le dans le panneau **Hierarchy**. Sans lui, `MRUK.Instance` reste `null` et rien ne se
    passe jamais (le script logue une erreur explicite dans ce cas, donc si tu la vois dans la
    Console, c'est ça).
-2. Toujours dans **Hierarchy** → clic droit dans le vide → **Create Empty**. Renomme-le
+4. Toujours dans **Hierarchy** → clic droit dans le vide → **Create Empty**. Renomme-le
    (double-clic sur le nom) en `ManifestLoader`.
-3. Sélectionne-le. Dans le panneau **Inspector** (à droite), bouton **Add Component** en bas.
-4. Tape `Qr Manifest Loader` dans la recherche, clique dessus pour l'ajouter.
-5. Trois champs apparaissent dans l'Inspector, remplis-les :
+5. Sélectionne-le. Dans le panneau **Inspector** (à droite), bouton **Add Component** en bas.
+6. Tape `Qr Manifest Loader` dans la recherche, clique dessus pour l'ajouter.
+7. Trois champs apparaissent dans l'Inspector, remplis-les :
    - **Backend Base Url** : `https://api.gmpbordeaux.fr`
    - **Viewer Email** : `casque@gmpbordeaux.fr`
    - **Viewer Password** : (celui donné lors de la mise en prod du backend — redemande-le moi si
      tu ne l'as plus sous la main, je ne le remets pas ici en clair)
-6. **Ctrl+S** (ou File → Save) pour sauvegarder la scène.
+8. **Ctrl+S** (ou File → Save) pour sauvegarder la scène.
 
 ## Étape 10.5 — Voir les logs sans câble ni mode développeur
 
