@@ -171,8 +171,8 @@
         );
       }
 
-      const rec = await pb.collection("content_items").create<ContentItem>(fd);
-      const placement = await pb.collection("placements").create<Placement>({
+      const rec = await pb.collection("guidera_content_items").create<ContentItem>(fd);
+      const placement = await pb.collection("guidera_placements").create<Placement>({
         content_item: rec.id,
         ...defaultPlacement(type),
       });

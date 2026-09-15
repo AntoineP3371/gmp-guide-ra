@@ -37,15 +37,15 @@
   async function load() {
     err = "";
     try {
-      machine = await pb.collection("machines").getOne<Machine>(params.id);
-      items = await pb.collection("content_items").getFullList<ContentItem>({
+      machine = await pb.collection("guidera_machines").getOne<Machine>(params.id);
+      items = await pb.collection("guidera_content_items").getFullList<ContentItem>({
         filter: `machine="${params.id}"`,
         sort: "section,sort",
       });
       placements =
         items.length === 0
           ? []
-          : await pb.collection("placements").getFullList<Placement>({
+          : await pb.collection("guidera_placements").getFullList<Placement>({
               filter: items.map((i) => `content_item="${i.id}"`).join(" || "),
             });
       await refreshQr();
@@ -62,7 +62,7 @@
     err = "";
     msg = "";
     try {
-      machine = await pb.collection("machines").update<Machine>(machine.id, {
+      machine = await pb.collection("guidera_machines").update<Machine>(machine.id, {
         name: machine.name,
         category: machine.category,
         location: machine.location,
@@ -88,7 +88,7 @@
       const res = await pb.send<{ revision: number }>(`/api/publish/${machine.id}`, {
         method: "POST",
       });
-      machine = await pb.collection("machines").getOne<Machine>(machine.id);
+      machine = await pb.collection("guidera_machines").getOne<Machine>(machine.id);
       msg = `Publié — révision ${res.revision}. Manifest : /api/manifest/${machine.qr_code}`;
     } catch (x) {
       err = String(x);
@@ -100,7 +100,7 @@
   async function removeItem(item: ContentItem) {
     if (!confirm(`Supprimer « ${item.title?.fr ?? item.type} » ?`)) return;
     try {
-      await pb.collection("content_items").delete(item.id);
+      await pb.collection("guidera_content_items").delete(item.id);
       items = items.filter((i) => i.id !== item.id);
       placements = placements.filter((p) => p.content_item !== item.id);
     } catch (x) {

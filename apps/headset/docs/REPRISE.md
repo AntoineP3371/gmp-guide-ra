@@ -49,7 +49,7 @@ Détail complet dans `docs/SETUP.md` étape 11 — résumé ici pour aller vite 
    la release → copier l'adresse) à l'app privée dans Meta Horizon Developer Center.
 4. Installer/lancer sur le casque, lire les logs via le panneau à l'écran.
 5. **Dès que récupéré côté casque : supprimer la release GitHub** (Releases → Delete).
-6. **Changer le mot de passe du compte `viewer@gmp.local`** dans l'admin PocketBase
+6. **Changer le mot de passe du compte `casque@gmpbordeaux.fr`** dans l'admin PocketBase
    (`https://api.gmpbordeaux.fr/_/` → collection `users`) — invalide les identifiants exposés
    pendant la fenêtre publique.
 7. **Reporter le nouveau mot de passe** dans l'Inspector Unity (objet `ManifestLoader` → composant

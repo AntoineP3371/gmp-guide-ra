@@ -35,7 +35,7 @@
     loading = true;
     err = "";
     try {
-      steps = await pb.collection("scenario_steps").getFullList<ScenarioStep>({
+      steps = await pb.collection("guidera_scenario_steps").getFullList<ScenarioStep>({
         filter: `machine="${machine.id}"`,
         sort: "sort",
       });
@@ -51,7 +51,7 @@
     modeBusy = true;
     err = "";
     try {
-      const updated = await pb.collection("machines").update<Machine>(machine.id, {
+      const updated = await pb.collection("guidera_machines").update<Machine>(machine.id, {
         scenario_mode: mode,
       });
       onMachineChange(updated);
@@ -67,7 +67,7 @@
     const cur = machine.scenario_always_visible ?? [];
     const next = cur.includes(id) ? cur.filter((x: string) => x !== id) : [...cur, id];
     try {
-      const updated = await pb.collection("machines").update<Machine>(machine.id, {
+      const updated = await pb.collection("guidera_machines").update<Machine>(machine.id, {
         scenario_always_visible: next,
       });
       onMachineChange(updated);
@@ -79,7 +79,7 @@
   async function addStep() {
     const nextSort = steps.length ? Math.max(...steps.map((s) => s.sort)) + 1 : 0;
     try {
-      const rec = await pb.collection("scenario_steps").create<ScenarioStep>({
+      const rec = await pb.collection("guidera_scenario_steps").create<ScenarioStep>({
         machine: machine.id,
         sort: nextSort,
         object_ids: [],
@@ -95,7 +95,7 @@
 
   async function patchStep(step: ScenarioStep, patch: Partial<ScenarioStep>) {
     try {
-      const updated = await pb.collection("scenario_steps").update<ScenarioStep>(step.id, patch);
+      const updated = await pb.collection("guidera_scenario_steps").update<ScenarioStep>(step.id, patch);
       steps = steps.map((s) => (s.id === step.id ? updated : s));
     } catch (x) {
       err = String(x);
@@ -111,7 +111,7 @@
 
   async function removeStep(step: ScenarioStep) {
     try {
-      await pb.collection("scenario_steps").delete(step.id);
+      await pb.collection("guidera_scenario_steps").delete(step.id);
       steps = steps.filter((s) => s.id !== step.id);
     } catch (x) {
       err = String(x);
@@ -125,8 +125,8 @@
     const other = steps[otherIdx];
     const [a, b] = [step.sort, other.sort];
     await Promise.all([
-      pb.collection("scenario_steps").update(step.id, { sort: b }),
-      pb.collection("scenario_steps").update(other.id, { sort: a }),
+      pb.collection("guidera_scenario_steps").update(step.id, { sort: b }),
+      pb.collection("guidera_scenario_steps").update(other.id, { sort: a }),
     ]);
     await load();
   }

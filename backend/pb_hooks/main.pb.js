@@ -41,7 +41,7 @@ onRecordCreate((e) => {
   }
 
   e.next();
-}, "machines");
+}, "guidera_machines");
 
 // ------------------------------------------ placements: écriture par compte casque
 // Un compte role "viewer" (app Unity) ne peut que déplacer un objet existant :
@@ -49,13 +49,13 @@ onRecordCreate((e) => {
 onRecordUpdateRequest((e) => {
   const auth = e.auth;
   if (auth && auth.get("role") === "viewer") {
-    const original = e.app.findRecordById("placements", e.record.id);
+    const original = e.app.findRecordById("guidera_placements", e.record.id);
     e.record.set("content_item", original.get("content_item"));
     e.record.set("anchor_mode", original.get("anchor_mode"));
     e.record.set("source", "headset");
   }
   e.next();
-}, "placements");
+}, "guidera_placements");
 
 // ----------------------------------------------------- POST /api/publish/{machine}
 routerAdd(
@@ -71,7 +71,7 @@ routerAdd(
 
     let machine;
     try {
-      machine = e.app.findRecordById("machines", e.request.pathValue("machine"));
+      machine = e.app.findRecordById("guidera_machines", e.request.pathValue("machine"));
     } catch (_) {
       return e.json(404, { error: "machine inconnue" });
     }
@@ -117,7 +117,7 @@ routerAdd(
     let items = [];
     try {
       items = e.app.findRecordsByFilter(
-        "content_items",
+        "guidera_content_items",
         "machine = {:m}",
         "+section,+sort",
         500,
@@ -132,7 +132,7 @@ routerAdd(
     for (const it of items) {
       let placement;
       try {
-        placement = e.app.findFirstRecordByFilter("placements", "content_item = {:c}", {
+        placement = e.app.findFirstRecordByFilter("guidera_placements", "content_item = {:c}", {
           c: it.id,
         });
       } catch (_) {
@@ -185,7 +185,7 @@ routerAdd(
       scenario.alwaysVisible = jsonArr(machine, "scenario_always_visible");
       let stepRows = [];
       try {
-        stepRows = e.app.findRecordsByFilter("scenario_steps", "machine = {:m}", "+sort", 200, 0, {
+        stepRows = e.app.findRecordsByFilter("guidera_scenario_steps", "machine = {:m}", "+sort", 200, 0, {
           m: machine.id,
         });
       } catch (_) {
@@ -242,7 +242,7 @@ routerAdd(
       objects: objects,
     });
 
-    const col = e.app.findCollectionByNameOrId("manifests");
+    const col = e.app.findCollectionByNameOrId("guidera_manifests");
     const rec = new Record(col);
     rec.set("machine", machine.id);
     rec.set("revision", nextRevision);
@@ -270,7 +270,7 @@ routerAdd(
 
     let machine;
     try {
-      machine = e.app.findFirstRecordByFilter("machines", "qr_code = {:c}", { c: code });
+      machine = e.app.findFirstRecordByFilter("guidera_machines", "qr_code = {:c}", { c: code });
     } catch (_) {
       return e.json(404, { error: "QR inconnu" });
     }
@@ -278,7 +278,7 @@ routerAdd(
     let manifest;
     try {
       const rows = e.app.findRecordsByFilter(
-        "manifests",
+        "guidera_manifests",
         "machine = {:m}",
         "-revision",
         1,

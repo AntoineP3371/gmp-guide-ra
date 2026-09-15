@@ -20,7 +20,7 @@
     loading = true;
     err = "";
     try {
-      machines = await pb.collection("machines").getFullList<Machine>({ sort: "name" });
+      machines = await pb.collection("guidera_machines").getFullList<Machine>({ sort: "name" });
     } catch (e) {
       err = String(e);
     } finally {
@@ -34,7 +34,7 @@
     creating = true;
     err = "";
     try {
-      const rec = await pb.collection("machines").create<Machine>({
+      const rec = await pb.collection("guidera_machines").create<Machine>({
         name,
         category,
         location,

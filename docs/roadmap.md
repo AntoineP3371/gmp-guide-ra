@@ -5,9 +5,10 @@
 - [x] Contrat du *scene manifest* (`schemas/manifest.schema.json` + `docs/manifest-contract.md`),
       y compris le **scénario** (étapes, chronologie, déclencheurs)
 - [x] Manifest d'exemple (`examples/manifest.example.json`)
-- [x] Schéma PocketBase (`backend/`) : `machines`, `content_items`, `placements`, `manifests`,
-      `anchors`, `analytics_events`, `scenario_steps` (+ `scenario_mode`/`scenario_always_visible`
-      sur `machines`)
+- [x] Schéma PocketBase (`backend/`) : `guidera_machines`, `guidera_content_items`,
+      `guidera_placements`, `guidera_manifests`, `guidera_anchors`, `guidera_analytics_events`,
+      `guidera_scenario_steps` (+ `scenario_mode`/`scenario_always_visible` sur `guidera_machines`)
+      — préfixées `guidera_` car l'instance PocketBase héberge aussi d'autres projets (`sae_*`)
 - [x] Hooks : génération ID/QR, route d'assemblage `/api/publish/:machine`, route
       `/api/manifest/:code` — **testés de bout en bout** (`backend/scripts/smoketest.mjs`)
 - [x] App web squelette : auth, CRUD machine, génération QR + export PDF, bouton Publier
@@ -31,8 +32,8 @@
       bout dans le navigateur (calibration, placement, glisser-déposer, persistance après reload)
 - [x] Onglets Utilisation / Entretien / Capacités / Sécurité
 - [x] **Éditeur de scénario** : étapes ordonnées (↑/↓), objets actifs par étape, transition
-      d'entrée, déclencheur tap/timer/media_end — écrit `scenario_steps` + bascule
-      `machines.scenario_mode` — vérifié de bout en bout dans le navigateur
+      d'entrée, déclencheur tap/timer/media_end — écrit `guidera_scenario_steps` + bascule
+      `guidera_machines.scenario_mode` — vérifié de bout en bout dans le navigateur
 - [x] **Prévisualisation (placement + scénario) dans le viewer 3D depuis l'éditeur** : panneau
       « Aperçu 3D » dans la fiche machine, manifest de brouillon assemblé côté client (sans
       passer par `/api/publish`), navigation étape par étape pour le mode guidé. Logique de

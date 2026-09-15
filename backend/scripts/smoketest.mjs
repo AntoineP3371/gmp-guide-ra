@@ -36,7 +36,7 @@ const auth = await j("POST", "/api/collections/users/auth-with-password", null, 
 });
 const AT = auth.token;
 
-const machine = await j("POST", "/api/collections/machines/records", AT, {
+const machine = await j("POST", "/api/collections/guidera_machines/records", AT, {
   name: "Fraiseuse test",
   category: "Fraisage",
   location: "Atelier B",
@@ -44,7 +44,7 @@ const machine = await j("POST", "/api/collections/machines/records", AT, {
 });
 console.log("machine:", { id: machine.id, qr_code: machine.qr_code, scenario_mode: machine.scenario_mode });
 
-const item1 = await j("POST", "/api/collections/content_items/records", AT, {
+const item1 = await j("POST", "/api/collections/guidera_content_items/records", AT, {
   machine: machine.id,
   type: "text",
   section: "capabilities",
@@ -54,7 +54,7 @@ const item1 = await j("POST", "/api/collections/content_items/records", AT, {
 });
 console.log("content_item:", item1.id);
 
-const item2 = await j("POST", "/api/collections/content_items/records", AT, {
+const item2 = await j("POST", "/api/collections/guidera_content_items/records", AT, {
   machine: machine.id,
   type: "video",
   section: "usage",
@@ -64,7 +64,7 @@ const item2 = await j("POST", "/api/collections/content_items/records", AT, {
 });
 console.log("content_item2:", item2.id);
 
-await j("POST", "/api/collections/placements/records", AT, {
+await j("POST", "/api/collections/guidera_placements/records", AT, {
   content_item: item1.id,
   anchor_mode: "qr-relative",
   position: [0.1, 0.1, 0.05],
@@ -72,7 +72,7 @@ await j("POST", "/api/collections/placements/records", AT, {
   size: [0.3, 0.2],
   source: "photo2d",
 });
-await j("POST", "/api/collections/placements/records", AT, {
+await j("POST", "/api/collections/guidera_placements/records", AT, {
   content_item: item2.id,
   anchor_mode: "qr-relative",
   position: [-0.2, 0.1, 0.05],
@@ -82,19 +82,19 @@ await j("POST", "/api/collections/placements/records", AT, {
 });
 console.log("placements OK");
 
-await j("PATCH", `/api/collections/machines/records/${machine.id}`, AT, {
+await j("PATCH", `/api/collections/guidera_machines/records/${machine.id}`, AT, {
   scenario_mode: "guided",
   scenario_always_visible: [item1.id],
 });
 
-await j("POST", "/api/collections/scenario_steps/records", AT, {
+await j("POST", "/api/collections/guidera_scenario_steps/records", AT, {
   machine: machine.id,
   sort: 0,
   title: { fr: "Etape 1" },
   object_ids: [item2.id],
   advance_trigger: "media_end",
 });
-await j("POST", "/api/collections/scenario_steps/records", AT, {
+await j("POST", "/api/collections/guidera_scenario_steps/records", AT, {
   machine: machine.id,
   sort: 1,
   object_ids: [item1.id],

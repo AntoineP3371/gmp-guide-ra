@@ -13,11 +13,11 @@ function fileUrl(record: { collectionId?: string; collectionName?: string; id: s
 }
 
 export async function assembleDraftManifest(machine: Machine): Promise<Manifest> {
-  const items = await pb.collection("content_items").getFullList<ContentItem>({
+  const items = await pb.collection("guidera_content_items").getFullList<ContentItem>({
     filter: `machine="${machine.id}"`,
   });
   const placements = items.length
-    ? await pb.collection("placements").getFullList<Placement>({
+    ? await pb.collection("guidera_placements").getFullList<Placement>({
         filter: items.map((i) => `content_item="${i.id}"`).join(" || "),
       })
     : [];
@@ -58,7 +58,7 @@ export async function assembleDraftManifest(machine: Machine): Promise<Manifest>
   const scenario: Manifest["scenario"] = { mode };
   if (mode === "guided") {
     scenario.alwaysVisible = machine.scenario_always_visible ?? [];
-    const steps = await pb.collection("scenario_steps").getFullList<ScenarioStep>({
+    const steps = await pb.collection("guidera_scenario_steps").getFullList<ScenarioStep>({
       filter: `machine="${machine.id}"`,
       sort: "sort",
     });

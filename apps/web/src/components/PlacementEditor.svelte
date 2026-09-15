@@ -79,7 +79,7 @@
     try {
       const fd = new FormData();
       fd.append("photos+", file);
-      const updated = await pb.collection("machines").update<Machine>(machine.id, fd);
+      const updated = await pb.collection("guidera_machines").update<Machine>(machine.id, fd);
       onMachineChange(updated);
     } catch (x) {
       err = String(x);
@@ -97,7 +97,7 @@
 
   async function saveCalibration(origin: [number, number], widthFrac: number) {
     try {
-      const updated = await pb.collection("machines").update<Machine>(machine.id, {
+      const updated = await pb.collection("guidera_machines").update<Machine>(machine.id, {
         photo_qr_origin: origin,
         photo_qr_width_frac: widthFrac,
       });
@@ -112,7 +112,7 @@
     if (!p) return;
     const [x, y] = fracToMeters(fx, fy);
     try {
-      const updated = await pb.collection("placements").update<Placement>(p.id, {
+      const updated = await pb.collection("guidera_placements").update<Placement>(p.id, {
         position: [x, y, p.position[2]],
         source: "photo2d",
       });

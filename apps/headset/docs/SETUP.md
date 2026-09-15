@@ -304,8 +304,8 @@ refermer l'exposition immédiatement après :
 4. **Dès que l'app est installée sur le casque** :
    - Supprime la release (`Releases` → la release → **Delete**) pour refermer l'accès public au
      fichier.
-   - **Change le mot de passe du compte `viewer@gmp.local`** dans l'admin PocketBase
-     (`https://api.gmpbordeaux.fr/_/` → collection `users` → `viewer@gmp.local` → Edit → nouveau
+   - **Change le mot de passe du compte `casque@gmpbordeaux.fr`** dans l'admin PocketBase
+     (`https://api.gmpbordeaux.fr/_/` → collection `users` → `casque@gmpbordeaux.fr` → Edit → nouveau
      mot de passe) — pour invalider les identifiants qui ont transité en clair dans un binaire
      public pendant la fenêtre d'exposition. Uniquement via le navigateur, pas besoin de SSH.
    - Remets à jour le champ **Viewer Password** dans l'Inspector Unity (étape 10) avec le nouveau
