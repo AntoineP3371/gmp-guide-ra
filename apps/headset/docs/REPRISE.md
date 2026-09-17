@@ -1,8 +1,18 @@
 # Reprise de session — où on en est
 
-Dernier commit poussé : **`fa2e8f0`** (`git pull` en arrivant pour être à jour).
+Dernier commit poussé : **`d31bad1`** (`git pull` en arrivant pour être à jour).
 
-## État réel au moment de la pause
+## Depuis la dernière session : collections PocketBase renommées
+
+Les collections métier (`machines`, `content_items`, `placements`, `manifests`, `anchors`,
+`analytics_events`, `scenario_steps`) portent maintenant le préfixe `guidera_` côté PocketBase —
+l'instance du Pi héberge aussi un autre projet (`sae_*`), d'où la clarification. **Aucun impact
+attendu côté casque** : `QrManifestLoader`/`ManifestClient`/`AuthClient` ne parlent qu'aux routes
+personnalisées (`/api/publish/{machine}`, `/api/manifest/{code}`) et à `/api/collections/users/...`
+(auth, collection non renommée) — jamais aux collections métier en direct. À garder en tête
+seulement si une erreur inattendue apparaît côté casque après ce changement.
+
+## État réel au moment de la pause (session précédente)
 
 Premier vrai test sur casque effectué ce soir, progrès concret :
 
