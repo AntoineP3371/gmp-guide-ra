@@ -40,7 +40,7 @@
 | Brique | Choix | Pourquoi |
 |---|---|---|
 | Backend | PocketBase (Go + SQLite), sur le Raspberry Pi 4 (2 Go) de l'auteur | 1 binaire auto-hébergeable, auth + fichiers + REST + réel-temps, hooks JS. SQLite suffit à l'échelle atelier. |
-| Exposition du backend | **Cloudflare Tunnel** (DNS du domaine OVH basculé chez Cloudflare) | URL HTTPS stable `api.gmpbordeaux.fr`, rien d'entrant sur le réseau domicile, pas de matériel sur le réseau universitaire → la DSI n'a rien à autoriser. Cache Cloudflare en bonus pour les médias. |
+| Exposition du backend | **Cloudflare Tunnel** (DNS du domaine OVH basculé chez Cloudflare) | URL HTTPS stable `api_guidera.gmpbordeaux.fr`, rien d'entrant sur le réseau domicile, pas de matériel sur le réseau universitaire → la DSI n'a rien à autoriser. Cache Cloudflare en bonus pour les médias. |
 | App de préparation | Svelte + Vite + TS, **hébergée sur GitHub Pages** (`gmpbordeaux.fr/gmp-guide-ra/` — page de projet ; sous-domaine dédié `prepa.` pas encore fait) | Accessible de partout, gratuite, versionnée avec le repo. |
 | Viewer contrat | three.js (`apps/viewer-web`) | même repère main droite que le manifest → rend sans conversion, valide le contrat sans casque. |
 | App casque | **Unity + Meta XR SDK** (Core + MR Utility Kit), app privée poussée par **Meta Device Manager** | Seul chemin viable pour l'AR ancrée sur QR : Wolvic (navigateur imposé par le MDM, Quest Browser désactivé) n'expose pas la caméra en WebXR. |
@@ -83,13 +83,13 @@ l'upload :
   supposés au départ — à garder en tête pour les uploads concurrents).
   - Exposé via **Cloudflare Tunnel** (`cloudflared.service`, mode connecteur à jeton — la route
     est configurée côté tableau de bord Cloudflare, pas de `config.yml` local) sous
-    **`api.gmpbordeaux.fr`**. Aucune ouverture de port sur la box, aucun matériel sur un réseau
+    **`api_guidera.gmpbordeaux.fr`**. Aucune ouverture de port sur la box, aucun matériel sur un réseau
     universitaire.
   - Le Pi n'a pas besoin d'être joignable en continu : seulement au moment de la **publication**
     d'un contenu et du **chargement** initial d'un casque (ensuite, cache hors-ligne).
 - **App de préparation : GitHub Pages**, `gmpbordeaux.fr/gmp-guide-ra/`. Build déclenché par une
   GitHub Action à chaque push (`.github/workflows/deploy-web.yml`), variable de dépôt
-  `PB_URL = https://api.gmpbordeaux.fr` injectée au build.
+  `PB_URL = https://api_guidera.gmpbordeaux.fr` injectée au build.
 - **Domaine : OVH (registrar) + Cloudflare (DNS)**. Le domaine reste enregistré/payé chez OVH ;
   les serveurs de noms pointent vers Cloudflare (`alec`/`peaches.ns.cloudflare.com`), ce qui
   permet le Tunnel + le cache + la gestion des sous-domaines au même endroit.

@@ -2,7 +2,22 @@
 
 Dernier commit poussé : **`d31bad1`** (`git pull` en arrivant pour être à jour).
 
-## Depuis la dernière session : collections PocketBase renommées
+## Depuis la dernière session : domaine du backend renommé
+
+Le hostname public du Pi est passé de `api.gmpbordeaux.fr` à **`api_guidera.gmpbordeaux.fr`**
+(tunnel Cloudflare renommé). Testé, répond bien. ⚠️ Deux mises à jour **manuelles obligatoires**
+avant le prochain build/test, qu'aucun `git pull` ne fera à ta place :
+
+1. **Dans l'Inspector Unity** : objet `ManifestLoader` → composant `Qr Manifest Loader` → champ
+   `Backend Base Url` → remplace par `https://api_guidera.gmpbordeaux.fr`. La valeur saisie dans
+   l'Inspector est enregistrée dans la scène et **écrase** la valeur par défaut du script — changer
+   le `.cs` seul (déjà fait, committé) ne suffit pas.
+2. **Variable GitHub Actions `PB_URL`** (Settings du dépôt → Secrets and variables → Actions →
+   Variables) : mets-la à jour vers `https://api_guidera.gmpbordeaux.fr` — c'est une variable de
+   dépôt, pas un fichier, donc rien dans le code ne peut la changer automatiquement. Sans ça, l'app
+   web publiée sur GitHub Pages continuera de parler à l'ancien hostname au prochain déploiement.
+
+## Depuis la session d'avant : collections PocketBase renommées
 
 Les collections métier (`machines`, `content_items`, `placements`, `manifests`, `anchors`,
 `analytics_events`, `scenario_steps`) portent maintenant le préfixe `guidera_` côté PocketBase —
@@ -60,7 +75,7 @@ Détail complet dans `docs/SETUP.md` étape 11 — résumé ici pour aller vite 
 4. Installer/lancer sur le casque, lire les logs via le panneau à l'écran.
 5. **Dès que récupéré côté casque : supprimer la release GitHub** (Releases → Delete).
 6. **Changer le mot de passe du compte `casque@gmpbordeaux.fr`** dans l'admin PocketBase
-   (`https://api.gmpbordeaux.fr/_/` → collection `users`) — invalide les identifiants exposés
+   (`https://api_guidera.gmpbordeaux.fr/_/` → collection `users`) — invalide les identifiants exposés
    pendant la fenêtre publique.
 7. **Reporter le nouveau mot de passe** dans l'Inspector Unity (objet `ManifestLoader` → composant
    `Qr Manifest Loader` → champ `Viewer Password`) avant le prochain build, sinon l'authentification

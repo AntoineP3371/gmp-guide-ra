@@ -4,7 +4,7 @@ name: Deploy web (préparation) to GitHub Pages
 # Prérequis (une fois, dans Settings du dépôt) :
 #   1. Settings > Pages > Source = "GitHub Actions"
 #   2. Settings > Secrets and variables > Actions > Variables
-#        PB_URL = https://api.gmpbordeaux.fr   (URL publique du backend PocketBase, via Cloudflare Tunnel)
+#        PB_URL = https://api_guidera.gmpbordeaux.fr   (URL publique du backend PocketBase, via Cloudflare Tunnel)
 #   3. Domaine personnalisé (optionnel) : Settings > Pages > Custom domain = prepa.gmpbordeaux.fr
 #      + chez Cloudflare, un enregistrement CNAME `prepa` -> `<user>.github.io`
 

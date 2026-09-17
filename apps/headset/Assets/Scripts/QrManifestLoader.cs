@@ -17,8 +17,8 @@ using UnityEngine.Android;
 public class QrManifestLoader : MonoBehaviour
 {
     [Header("Backend")]
-    [Tooltip("Ex. https://api.gmpbordeaux.fr (prod) ou http://<ip-locale>:8090 (dev)")]
-    public string backendBaseUrl = "https://api.gmpbordeaux.fr";
+    [Tooltip("Ex. https://api_guidera.gmpbordeaux.fr (prod) ou http://<ip-locale>:8090 (dev)")]
+    public string backendBaseUrl = "https://api_guidera.gmpbordeaux.fr";
 
     [Tooltip("Compte de service PocketBase role \"viewer\" — voir backend/README.md")]
     public string viewerEmail;

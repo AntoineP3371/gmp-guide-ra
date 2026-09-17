@@ -11,7 +11,7 @@ namespace GmpGuideRA.Manifest
 {
     public static class ManifestClient
     {
-        /// Ex. "https://api.gmpbordeaux.fr" — sans slash final.
+        /// Ex. "https://api_guidera.gmpbordeaux.fr" — sans slash final.
         public static string BaseUrl;
 
         /// Token PocketBase du compte de service (voir AuthClient.LoginAsync).

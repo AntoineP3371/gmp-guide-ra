@@ -233,7 +233,7 @@ Dans les deux cas, une fois la scène nettoyée et le rig caméra en place :
 5. Sélectionne-le. Dans le panneau **Inspector** (à droite), bouton **Add Component** en bas.
 6. Tape `Qr Manifest Loader` dans la recherche, clique dessus pour l'ajouter.
 7. Trois champs apparaissent dans l'Inspector, remplis-les :
-   - **Backend Base Url** : `https://api.gmpbordeaux.fr`
+   - **Backend Base Url** : `https://api_guidera.gmpbordeaux.fr`
    - **Viewer Email** : `casque@gmpbordeaux.fr`
    - **Viewer Password** : (celui donné lors de la mise en prod du backend — redemande-le moi si
      tu ne l'as plus sous la main, je ne le remets pas ici en clair)
@@ -305,7 +305,7 @@ refermer l'exposition immédiatement après :
    - Supprime la release (`Releases` → la release → **Delete**) pour refermer l'accès public au
      fichier.
    - **Change le mot de passe du compte `casque@gmpbordeaux.fr`** dans l'admin PocketBase
-     (`https://api.gmpbordeaux.fr/_/` → collection `users` → `casque@gmpbordeaux.fr` → Edit → nouveau
+     (`https://api_guidera.gmpbordeaux.fr/_/` → collection `users` → `casque@gmpbordeaux.fr` → Edit → nouveau
      mot de passe) — pour invalider les identifiants qui ont transité en clair dans un binaire
      public pendant la fenêtre d'exposition. Uniquement via le navigateur, pas besoin de SSH.
    - Remets à jour le champ **Viewer Password** dans l'Inspector Unity (étape 10) avec le nouveau
@@ -319,8 +319,9 @@ clics exacts :
 1. **Meta Horizon Developer Center** (developers.meta.com/horizon) → ton organisation → section
    apps privées / **Device Manager**.
 2. Créer/mettre à jour une **app privée** en donnant l'**URL publique** de l'APK obtenue à l'étape
-   11b (`https://api.gmpbordeaux.fr/<nom-aleatoire>.apk`) — confirmé que ce dashboard récupère le
-   fichier lui-même depuis une URL plutôt que d'accepter un envoi direct depuis le navigateur.
+   11b (l'adresse du lien de téléchargement de la Release GitHub publiée) — confirmé que ce
+   dashboard récupère le fichier lui-même depuis une URL plutôt que d'accepter un envoi direct
+   depuis le navigateur.
 3. **Data Use Checkup** : la première fois, Meta demande de justifier les permissions utilisées
    (ici la caméra, `horizonos.permission.HEADSET_CAMERA`) avant de rendre l'app disponible — ça
    peut prendre un peu de temps, pas juste un clic. Si l'app refuse de s'installer ou de démarrer

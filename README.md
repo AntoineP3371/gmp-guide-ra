@@ -11,7 +11,7 @@ consignes de **sécurité**.
 | Dossier | Rôle | Stack | Hébergement cible |
 |---|---|---|---|
 | `apps/web/` | Interface de préparation : fiches machines, génération/impression QR, upload et placement des contenus, éditeur de scénario, publication | Svelte + Vite + TypeScript | **GitHub Pages** (`prepa.gmpbordeaux.fr`) |
-| `backend/` | API, stockage média, assemblage et versionnement des *manifests* | PocketBase (binaire Go + SQLite) + hooks JS | **Raspberry Pi 4** au domicile de l'auteur, exposé via **Cloudflare Tunnel** (`api.gmpbordeaux.fr`) |
+| `backend/` | API, stockage média, assemblage et versionnement des *manifests* | PocketBase (binaire Go + SQLite) + hooks JS | **Raspberry Pi 4** au domicile de l'auteur, exposé via **Cloudflare Tunnel** (`api_guidera.gmpbordeaux.fr`) |
 | `apps/viewer-web/` | Mini-viewer 3D (three.js) qui rend un manifest **sans casque**, pour valider le contrat | Vite + three.js | dev local |
 | `packages/viewer3d/` | Rendu 3D partagé (objets + scénario) entre `viewer-web` et le panneau « Aperçu 3D » de `apps/web` | three.js | — (package interne) |
 | `apps/headset/` | *(Phase 2)* App Unity « lecteur générique » de scénario, poussée en app privée via Meta Device Manager | Unity + Meta XR SDK | casques Quest 3 (MDM) |

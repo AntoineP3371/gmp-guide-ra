@@ -47,8 +47,8 @@
       service systemd `gmp-guide-ra.service`), séparée de l'ancienne instance partagée
       (réservation-machines, archivée puis supprimée à la demande)
 - [x] **Cloudflare Tunnel** : DNS OVH basculé chez Cloudflare, tunnel `cloudflared.service` sur
-      le Pi, `api.gmpbordeaux.fr` → `localhost:8090` — vérifié accessible depuis l'extérieur
-- [x] `PB_URL` GitHub Actions réglé sur `https://api.gmpbordeaux.fr` — l'app publiée sur GitHub
+      le Pi, `api_guidera.gmpbordeaux.fr` → `localhost:8090` — vérifié accessible depuis l'extérieur
+- [x] `PB_URL` GitHub Actions réglé sur `https://api_guidera.gmpbordeaux.fr` — l'app publiée sur GitHub
       Pages parle maintenant au vrai backend
 
 ## Phase 2 — App casque (walking skeleton)
